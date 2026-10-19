@@ -28,12 +28,13 @@ The new migration permits null scope only where needed for provisioning, setup g
 
 ## Verification
 
-- **207 Flutter tests passed**, including empty-company Team/Add, cancellation, all three account-creation paths and later Personnel assignment.
+- **208 Flutter tests passed**, including empty-company Team/Add, cancellation, all three account-creation paths, later Personnel assignment and setup-code reissue after a company has been added.
 - Flutter analysis: no errors or warnings; the existing informational lint at `personal_schedule_page.dart:151` remains.
 - **21 manage-users and 12 personnel-auth tests passed**.
 - Isolated SQL tests cover Admin-only unassigned invites, no Company-Wide authority, denied null-scope activation, code expiry, setup after the issuer signs out, username authentication without protected access, later assignment and directory privacy. Existing migration/security checks also pass.
 - The user approved production activation. The migration was applied through Supabase's official migration API after the CLI pooler connection was unavailable; existing migration history is retained. No real account is created or invited as part of deployment.
 - `manage-users` and `personnel-auth` are ACTIVE with their intended JWT settings. Live checks confirm Admin-only null-scope invitations, enabled RLS, denied direct client execution of the assignment RPC, unchanged record counts and no new security-advisor findings.
+- The [GitHub signed-build workflow](https://github.com/Zeerooo-dev/JANITRA/actions/runs/39326360226) passed for the initial maintenance implementation. The final client-only setup-code scope correction was subsequently verified by the complete local Flutter suite and a local production-signed rebuild.
 
 ## Same-version GitHub replacement
 

@@ -700,6 +700,79 @@ void main() {
     },
   );
 
+  testWidgets('unassigned setup code keeps null scope after a company exists', (
+    tester,
+  ) async {
+    final backend = WorkspaceTestBackend()..addSite();
+    backend.managedUsers.add({
+      'user_id': '00000000-0000-0000-0000-000000000002',
+      'full_name': 'Pending Code',
+      'role': 'personnel',
+      'agency_id': null,
+      'site_id': null,
+      'is_active': false,
+      'is_unassigned': true,
+      'account_status': 'setup_pending',
+      'can_delete': true,
+    });
+    Map<String, dynamic>? sent;
+    final client = await clientFor(tester, (request) async {
+      if (request.url.path.endsWith('/manage-users')) {
+        final body = jsonDecode(request.body) as Map<String, dynamic>;
+        if (body['action'] == 'issue_account_code') {
+          sent = body;
+          return http.Response(
+            jsonEncode({
+              'setup_code': 'a' * 43,
+              'identifier': 'pending.code',
+              'expires_at': '2026-10-20T10:00:00Z',
+            }),
+            200,
+            headers: {'content-type': 'application/json'},
+          );
+        }
+      }
+      return backend.handle(request);
+    });
+    await tester.pumpWidget(
+      MaterialApp(
+        home: PeoplePage(
+          client: client,
+          agencyId: fixtureAgencyId,
+          agencyName: 'Agency',
+          sites: backend.sites,
+          embedded: true,
+          access: const WorkspaceAccess(
+            fullName: 'Admin',
+            roles: [
+              {'role': 'admin', 'agency_id': null, 'site_id': null},
+            ],
+          ),
+        ),
+      ),
+    );
+    await settle(tester);
+    await tester.tap(find.byTooltip('Manage Pending Code'));
+    await settle(tester);
+    await tester.tap(find.text('Setup / recovery code'));
+    await settle(tester);
+    await tester.enterText(
+      find.byType(TextFormField).first,
+      'Replacement code requested',
+    );
+    await tester.enterText(
+      find.byType(TextFormField).last,
+      'Admin-test-password',
+    );
+    await tester.ensureVisible(find.text('Issue one-time code'));
+    await tester.tap(find.text('Issue one-time code'));
+    await settle(tester);
+    expect(sent?['agency_id'], isNull);
+    expect(sent?['site_id'], isNull);
+    expect(find.byType(AccountCodePage), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
   for (final kind in ['supervisor', 'username', 'email']) {
     testWidgets('Admin creates unassigned $kind account without a company', (
       tester,

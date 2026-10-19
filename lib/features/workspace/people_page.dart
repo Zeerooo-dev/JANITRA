@@ -323,7 +323,9 @@ class _PeoplePageState extends State<PeoplePage> {
       context,
       client: widget.client,
       access: widget.access,
-      agencyId: person['agency_id'] as String? ?? widget.agencyId,
+      agencyId: person['is_unassigned'] == true
+          ? null
+          : person['agency_id'] as String? ?? widget.agencyId,
       person: person,
     );
     if (saved && mounted) await _load();
