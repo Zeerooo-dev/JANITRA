@@ -73,6 +73,51 @@ void main() {
     await temp.delete(recursive: true);
   });
 
+  test(
+    'permission restart restores the verified download without installing it',
+    () async {
+      final file = await File('${temp.path}/123456789.apk')
+          .writeAsBytes([1, 2, 3, 4]);
+      await updater.rememberPermission(file.path, testRelease);
+      final restored = await updater.restorePendingPermission();
+      expect(restored!.$1.version.name, '1.1.0');
+      expect(restored.$2, file.path);
+      expect(platform.verified, 1);
+      expect(platform.installed, 0);
+      await updater.clearPendingPermission();
+      expect(await updater.restorePendingPermission(), isNull);
+    },
+  );
+
+  test(
+    'stale, corrupted, foreign and unverified pending downloads fail closed',
+    () async {
+      final path = '${temp.path}/123456789.apk';
+      final pending = File('${temp.path}/pending-install.json');
+      for (final change in <void Function(Map<String, dynamic>)>[
+        (m) => m['created'] = 0,
+        (m) => m['repository'] = 'attacker/repo',
+        (m) => m['path'] = '/elsewhere/123456789.apk',
+        (m) => m['url'] = 'https://evil.example/update.apk',
+        (m) => m['version'] = '1.0.0',
+      ]) {
+        await updater.rememberPermission(path, testRelease);
+        final record =
+            jsonDecode(await pending.readAsString()) as Map<String, dynamic>;
+        change(record);
+        await pending.writeAsString(jsonEncode(record));
+        expect(await updater.restorePendingPermission(), isNull);
+        expect(await pending.exists(), isFalse);
+      }
+      await pending.writeAsString('corrupted');
+      expect(await updater.restorePendingPermission(), isNull);
+      await updater.rememberPermission(path, testRelease);
+      platform.reject = true;
+      expect(await updater.restorePendingPermission(), isNull);
+      expect(platform.installed, 0);
+    },
+  );
+
   test('selects newest semantic stable release and actual notes', () async {
     updater = ApkUpdater(
       repository: updateRepository,

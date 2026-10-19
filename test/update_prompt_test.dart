@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
@@ -17,9 +18,26 @@ class DialogUpdater extends ApkUpdater {
         repository: updateRepository,
         client: MockClient((_) async => http.Response('[]', 200)),
       );
-  late final done = Completer<String>();
+  late Completer<String> done = Completer<String>();
   Future<AppRelease?>? checkResult;
   int checks = 0;
+  int remembered = 0;
+  int cleared = 0;
+  (AppRelease, String)? saved;
+  @override
+  Future<(AppRelease, String)?> restorePendingPermission() async => saved;
+  @override
+  Future<void> rememberPermission(String path, AppRelease release) async {
+    remembered++;
+    saved = (release, path);
+  }
+
+  @override
+  Future<void> clearPendingPermission() async {
+    cleared++;
+    saved = null;
+  }
+
   @override
   Future<AppRelease?> check() {
     checks++;
@@ -69,7 +87,11 @@ void main() {
     updater.dispose();
   });
 
-  Future<void> show(WidgetTester tester, {ThemeData? theme}) async {
+  Future<void> show(
+    WidgetTester tester, {
+    ThemeData? theme,
+    String? initialPath,
+  }) async {
     tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
     await tester.pumpWidget(
       MaterialApp(
@@ -79,8 +101,11 @@ void main() {
             body: TextButton(
               onPressed: () => showDialog<void>(
                 context: context,
-                builder: (_) =>
-                    UpdateDialog(updater: updater, release: testRelease),
+                builder: (_) => UpdateDialog(
+                  updater: updater,
+                  release: testRelease,
+                  initialPath: initialPath,
+                ),
               ),
               child: const Text('Show update'),
             ),
@@ -105,6 +130,24 @@ void main() {
     expect(find.byType(UpdateDialog), findsNothing);
     expect(platform.installed, 0);
   });
+
+  testWidgets(
+    'restored download needs a fresh install action after process restart',
+    (tester) async {
+      await show(tester, initialPath: '/verified.apk');
+      expect(find.text('Update ready'), findsOneWidget);
+      expect(find.text('Install update'), findsOneWidget);
+      background(tester);
+      foreground(tester);
+      await tester.pumpAndSettle();
+      expect(platform.installed, 0);
+      expect(updater.progress, isNull);
+      await tester.tap(find.text('Install update'));
+      await tester.pumpAndSettle();
+      expect(platform.installed, 1);
+      expect(updater.cleared, greaterThan(0));
+    },
+  );
 
   testWidgets('real progress and verification gate installer', (tester) async {
     await show(tester);
@@ -198,6 +241,71 @@ void main() {
     await tester.pumpAndSettle();
     expect(platform.installed, 1);
   });
+
+  testWidgets(
+    'Later cancels an in-flight permission action without opening settings or installing',
+    (tester) async {
+      platform.allowed = false;
+      await show(tester);
+      await tester.tap(find.text('Update Now'));
+      await tester.pump();
+      updater.done.complete('/verified.apk');
+      await tester.pumpAndSettle();
+      platform.allowedFuture = Completer<bool>();
+      await tester.tap(find.text('Allow installation'));
+      await tester.pump();
+      await tester.tap(find.text('Later'));
+      await tester.pumpAndSettle();
+      platform.allowedFuture!.complete(true);
+      await tester.pumpAndSettle();
+      expect(platform.installed, 0);
+      expect(platform.settings, 0);
+      expect(find.byType(UpdateDialog), findsNothing);
+    },
+  );
+
+  testWidgets(
+    'installer failure after permission grant keeps a working install retry',
+    (tester) async {
+      platform.allowed = false;
+      await show(tester);
+      await tester.tap(find.text('Update Now'));
+      await tester.pump();
+      updater.done.complete('/verified.apk');
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Allow installation'));
+      await tester.pumpAndSettle();
+      background(tester);
+      platform.allowed = true;
+      platform.installError = PlatformException(code: 'installer');
+      foreground(tester);
+      await tester.pumpAndSettle();
+      expect(find.text('Install update'), findsOneWidget);
+      platform.installError = null;
+      await tester.tap(find.text('Install update'));
+      await tester.pumpAndSettle();
+      expect(platform.installed, 1);
+      expect(platform.settings, 1);
+    },
+  );
+
+  testWidgets(
+    'failed download retries successfully without leaving the workspace',
+    (tester) async {
+      await show(tester);
+      await tester.tap(find.text('Update Now'));
+      await tester.pump();
+      updater.done.completeError(const UpdateFailure('Connection lost.'));
+      await tester.pumpAndSettle();
+      updater.done = Completer<String>();
+      await tester.tap(find.text('Try again'));
+      await tester.pump();
+      updater.done.complete('/verified.apk');
+      await tester.pumpAndSettle();
+      expect(platform.installed, 1);
+      expect(find.text('Show update'), findsOneWidget);
+    },
+  );
 
   testWidgets(
     'startup check is nonblocking; Later preserves selected tab and route state',

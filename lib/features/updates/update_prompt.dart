@@ -27,6 +27,7 @@ class _UpdatePromptHostState extends State<UpdatePromptHost>
     with WidgetsBindingObserver {
   ApkUpdater? _updater;
   AppRelease? _pending;
+  String? _pendingPath;
   Timer? _timer;
   bool _shown = false;
 
@@ -49,7 +50,13 @@ class _UpdatePromptHostState extends State<UpdatePromptHost>
 
   Future<void> _check() async {
     try {
-      _pending = await _updater?.check();
+      final saved = await _updater?.restorePendingPermission();
+      if (saved != null) {
+        _pending = saved.$1;
+        _pendingPath = saved.$2;
+      } else {
+        _pending = await _updater?.check();
+      }
       if (mounted) _showWhenReady();
     } catch (_) {
       // An optional update check must never interrupt workplace access or offline work.
@@ -75,7 +82,11 @@ class _UpdatePromptHostState extends State<UpdatePromptHost>
     showDialog<void>(
       context: navigator.overlay!.context,
       barrierDismissible: false,
-      builder: (_) => UpdateDialog(updater: _updater!, release: _pending!),
+      builder: (_) => UpdateDialog(
+        updater: _updater!,
+        release: _pending!,
+        initialPath: _pendingPath,
+      ),
     );
   }
 
@@ -92,9 +103,15 @@ class _UpdatePromptHostState extends State<UpdatePromptHost>
 }
 
 class UpdateDialog extends StatefulWidget {
-  const UpdateDialog({super.key, required this.updater, required this.release});
+  const UpdateDialog({
+    super.key,
+    required this.updater,
+    required this.release,
+    this.initialPath,
+  });
   final ApkUpdater updater;
   final AppRelease release;
+  final String? initialPath;
 
   @override
   State<UpdateDialog> createState() => _UpdateDialogState();
@@ -106,6 +123,7 @@ class _UpdateDialogState extends State<UpdateDialog>
   bool _verifying = false;
   bool _permission = false;
   bool _waitingForSettings = false;
+  bool _installRequested = false;
   String? _path;
   String? _error;
   int _received = 0;
@@ -113,6 +131,7 @@ class _UpdateDialogState extends State<UpdateDialog>
   @override
   void initState() {
     super.initState();
+    _path = widget.initialPath;
     WidgetsBinding.instance.addObserver(this);
   }
 
@@ -133,6 +152,7 @@ class _UpdateDialogState extends State<UpdateDialog>
     } else if (state == AppLifecycleState.resumed &&
         _path != null &&
         !_busy &&
+        _installRequested &&
         !_permission &&
         _error == null) {
       _install();
@@ -155,6 +175,7 @@ class _UpdateDialogState extends State<UpdateDialog>
   }
 
   Future<void> _download() async {
+    _installRequested = true;
     setState(() {
       _busy = true;
       _error = null;
@@ -209,21 +230,40 @@ class _UpdateDialogState extends State<UpdateDialog>
         });
         return;
       }
+      setState(() => _permission = false);
       await widget.updater.platform.install(_path!, widget.release);
+      await widget.updater.clearPendingPermission();
       if (mounted) Navigator.of(context).pop();
     } catch (error) {
       if (mounted) {
         setState(() {
           _error = _message(error);
           _busy = false;
+          if (error is PlatformException && error.code == 'verification') {
+            _path = null;
+            _permission = false;
+          }
         });
       }
     }
   }
 
   Future<void> _allowInstallation() async {
+    if (_waitingForSettings) return;
     _waitingForSettings = true;
     try {
+      final allowed = await widget.updater.platform.canInstall();
+      if (!mounted || !_waitingForSettings) return;
+      if (allowed) {
+        _waitingForSettings = false;
+        if (mounted) await _install();
+        return;
+      }
+      await widget.updater.rememberPermission(_path!, widget.release);
+      if (!mounted || !_waitingForSettings) {
+        await widget.updater.clearPendingPermission();
+        return;
+      }
       await widget.updater.platform.requestInstallPermission();
     } catch (error) {
       _waitingForSettings = false;
@@ -240,11 +280,13 @@ class _UpdateDialogState extends State<UpdateDialog>
       canPop: !_busy,
       child: AlertDialog(
         constraints: const BoxConstraints(maxWidth: 480),
-        title: const Row(
+        title: Row(
           children: [
-            JanitraLogo(size: 44),
-            SizedBox(width: 12),
-            Expanded(child: Text('Update available')),
+            const JanitraLogo(size: 44),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(_path == null ? 'Update available' : 'Update ready'),
+            ),
           ],
         ),
         content: SizedBox(
@@ -301,6 +343,15 @@ class _UpdateDialogState extends State<UpdateDialog>
                     'Allow JANITRA to install updates on the next Android screen. Android will still ask you to confirm installation.',
                   ),
                 ],
+                if (widget.initialPath != null &&
+                    _path != null &&
+                    !_busy &&
+                    !_permission) ...[
+                  const SizedBox(height: 16),
+                  const Text(
+                    'Your download was verified again. Continue with Android’s installer when you’re ready.',
+                  ),
+                ],
                 if (_error != null) ...[
                   const SizedBox(height: 16),
                   Text(
@@ -317,7 +368,14 @@ class _UpdateDialogState extends State<UpdateDialog>
         ),
         actions: [
           TextButton(
-            onPressed: _busy ? null : () => Navigator.of(context).pop(),
+            onPressed: _busy
+                ? null
+                : () async {
+                    _installRequested = false;
+                    _waitingForSettings = false;
+                    await widget.updater.clearPendingPermission();
+                    if (context.mounted) Navigator.of(context).pop();
+                  },
             child: const Text('Later'),
           ),
           FilledButton.icon(
@@ -326,7 +384,10 @@ class _UpdateDialogState extends State<UpdateDialog>
                 : _permission
                 ? _allowInstallation
                 : _path != null
-                ? _install
+                ? () {
+                    _installRequested = true;
+                    _install();
+                  }
                 : _download,
             icon: Icon(
               _permission ? Icons.settings_outlined : Icons.system_update_alt,

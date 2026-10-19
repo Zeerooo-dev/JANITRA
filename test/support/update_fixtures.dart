@@ -12,7 +12,9 @@ class FakeUpdatePlatform implements UpdatePlatform {
   int installed = 0;
   int settings = 0;
   bool allowed = true;
+  Completer<bool>? allowedFuture;
   bool reject = false;
+  PlatformException? installError;
   Completer<void>? verification;
   @override
   Future<InstalledApp> installedApp() async => InstalledApp(
@@ -28,7 +30,7 @@ class FakeUpdatePlatform implements UpdatePlatform {
   }
 
   @override
-  Future<bool> canInstall() async => allowed;
+  Future<bool> canInstall() => allowedFuture?.future ?? Future.value(allowed);
   @override
   Future<void> requestInstallPermission() async {
     settings++;
@@ -36,6 +38,7 @@ class FakeUpdatePlatform implements UpdatePlatform {
 
   @override
   Future<void> install(String path, AppRelease release) async {
+    if (installError != null) throw installError!;
     installed++;
   }
 }

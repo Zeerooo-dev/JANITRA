@@ -101,7 +101,9 @@ internal class UpdateChannel(private val activity: Activity, messenger: BinaryMe
                     } else {
                         try {
                             val uri = FileProvider.getUriForFile(activity, "${activity.packageName}.updates", file)
-                            val intent = Intent(Intent.ACTION_VIEW).apply {
+                            // Use Android's installer action rather than offering APK file browsers.
+                            @Suppress("DEPRECATION")
+                            val intent = Intent(Intent.ACTION_INSTALL_PACKAGE).apply {
                                 setDataAndType(uri, "application/vnd.android.package-archive")
                                 clipData = ClipData.newRawUri("JANITRA update", uri)
                                 addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)

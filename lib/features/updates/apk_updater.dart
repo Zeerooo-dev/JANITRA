@@ -111,6 +111,88 @@ class ApkUpdater {
 
   void dispose() => _client.close();
 
+  Future<void> rememberPermission(String path, AppRelease release) async {
+    final app = await platform.installedApp();
+    await File('${app.directory}/pending-install.json').writeAsString(
+      jsonEncode({
+        'repository': repository,
+        'path': path,
+        'version': release.version.name,
+        'notes': release.notes,
+        'url': release.url.toString(),
+        'sha256': release.sha256,
+        'size': release.size,
+        'created': DateTime.now().millisecondsSinceEpoch,
+      }),
+      flush: true,
+    );
+  }
+
+  Future<void> clearPendingPermission() async {
+    try {
+      final app = await platform.installedApp();
+      final file = File('${app.directory}/pending-install.json');
+      if (await file.exists()) await file.delete();
+    } catch (_) {
+      // Restored downloads always require a new explicit Install update action.
+    }
+  }
+
+  Future<(AppRelease, String)?> restorePendingPermission() async {
+    try {
+      final app = await platform.installedApp();
+      final file = File('${app.directory}/pending-install.json');
+      if (!await file.exists()) return null;
+      if (await file.length() > 128 * 1024) {
+        throw const FormatException('Oversized pending record');
+      }
+      final data =
+          jsonDecode(await file.readAsString()) as Map<String, dynamic>;
+      final age =
+          DateTime.now().millisecondsSinceEpoch - (data['created'] as int);
+      final version = ReleaseVersion.parse(data['version'] as String);
+      final path = data['path'] as String;
+      final url = Uri.parse(data['url'] as String);
+      final digest = data['sha256'] as String;
+      final size = data['size'] as int;
+      if (data['repository'] != repository ||
+          age < 0 ||
+          age > const Duration(minutes: 30).inMilliseconds ||
+          version.preRelease.isNotEmpty ||
+          version.compareTo(ReleaseVersion.parse(app.version)) <= 0 ||
+          File(path).parent.path != app.directory ||
+          !RegExp(r'^[0-9]+\.apk$')
+              .hasMatch(path.split(Platform.pathSeparator).last) ||
+          !RegExp(r'^[a-f0-9]{64}$').hasMatch(digest) ||
+          size <= 0 ||
+          size > maxApkSize ||
+          url.scheme != 'https' ||
+          url.host != 'github.com' ||
+          url.port != 443 ||
+          url.userInfo.isNotEmpty ||
+          url.hasQuery ||
+          url.hasFragment ||
+          ![
+            '/$repository/releases/download/v${version.name}/janitra.apk',
+            '/$repository/releases/download/${version.name}/janitra.apk',
+          ].contains(url.path)) {
+        throw const FormatException('Stale or invalid pending update');
+      }
+      final release = AppRelease(
+        version: version,
+        notes: data['notes'] as String,
+        url: url,
+        sha256: digest,
+        size: size,
+      );
+      await platform.verify(path, release);
+      return (release, path);
+    } catch (_) {
+      await clearPendingPermission();
+      return null;
+    }
+  }
+
   Future<AppRelease?> check() =>
       _checking ??= _check().whenComplete(() => _checking = null);
 
@@ -300,6 +382,7 @@ class ApkUpdater {
     RandomAccessFile? output;
     var success = false;
     try {
+      await clearPendingPermission();
       final app = await platform.installedApp();
       if (app.freeBytes < release.size * 3 + reserveBytes) {
         throw const UpdateFailure(
