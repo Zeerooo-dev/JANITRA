@@ -90,6 +90,30 @@ void main() {
     expect(access.managesSite({'id': 'site-b', 'agency_id': 'b'}), isFalse);
   });
 
+  testWidgets(
+    'Admin retains Profile, About and agency setup after an empty reset',
+    (tester) async {
+      final backend = WorkspaceTestBackend()
+        ..roles = [
+          {'role': 'admin', 'agency_id': null, 'site_id': null},
+        ]
+        ..agencies.clear();
+      await open(tester, backend);
+      await nav(tester, 'Profile');
+      expect(find.text('Your account'), findsOneWidget);
+      await tap(tester, find.text('About JANITRA'));
+      expect(find.text('Third-party licenses'), findsOneWidget);
+      await tester.pageBack();
+      await tester.pumpAndSettle();
+      await tap(tester, find.text('Add Manpower Agency'));
+      expect(find.text('Confirm your account password'), findsOneWidget);
+      await tap(tester, find.text('Cancel'));
+      expect(backend.writes, isEmpty);
+      expect(backend.functionCalls, isEmpty);
+      expect(tester.takeException(), isNull);
+    },
+  );
+
   test('Admin management scope is global and site-specific Supervisors remain scoped', () {
     const access = WorkspaceAccess(
       fullName: 'Admin',

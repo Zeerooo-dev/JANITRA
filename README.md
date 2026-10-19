@@ -2,7 +2,7 @@
 
 Android janitorial workforce management with Flutter, Material 3, and Supabase.
 
-Build 26 adds the optional [GitHub Releases APK updater](docs/ANDROID-UPDATER.md). The public repository excludes signing keys and local configuration. [Release notes](docs/releases/v1.0.0.md) describe the first production-key build. GitHub Actions builds review artifacts only; publishing a release requires separate approval. Older Build 7 details below are historical.
+Build 27 includes Profile > About JANITRA, installed version information, and [third-party license notices](licenses/README.md), alongside the optional [GitHub Releases APK updater](docs/ANDROID-UPDATER.md). The public repository excludes signing keys and local configuration. [Release notes](docs/releases/v1.0.0.md) describe the first production-key release. GitHub Actions builds review artifacts only; publishing a release requires separate approval. Older Build 7 details below are historical.
 
 Authentication, scoped workspaces, People/PIN management, MFA, schedules/tasks, PIN submission, separate Supervisor confirmation/final approval, deadlines/overrides, encrypted personal offline drafts, history/notifications/audit, PDF/XLSX reports and Supervisor-only agency transfers are implemented. Six migrations and all three guarded functions are deployed. See [build 7](docs/BUILD-7-2026-10-13.md), [phone test guide](docs/PHONE_TEST_GUIDE.md) and [current transfer](docs/JANITRA_TRANSFER_2026-10-13.md).
 

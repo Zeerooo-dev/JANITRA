@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../appearance/appearance_page.dart';
+import '../about/about_page.dart';
 
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -618,6 +619,12 @@ class _WorkspacePageState extends State<WorkspacePage> {
               title: const Text('Appearance'),
               trailing: const Icon(Icons.chevron_right),
               onTap: () => _open(const AppearancePage()),
+            ),
+            ListTile(
+              leading: const Icon(Icons.info_outline),
+              title: const Text('About JANITRA'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => _open(const AboutPage()),
             ),
             ListTile(
               leading: const Icon(Icons.shield_outlined),

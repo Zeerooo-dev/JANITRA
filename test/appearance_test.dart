@@ -9,6 +9,7 @@ import 'package:janitra/app.dart';
 import 'package:janitra/core/appearance_settings.dart';
 import 'package:janitra/core/app_theme.dart';
 import 'package:janitra/features/appearance/appearance_page.dart';
+import 'package:janitra/features/about/about_page.dart';
 import 'package:janitra/features/workspace/workspace_page.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -538,6 +539,7 @@ void main() {
         await settle(tester);
         for (final (label, icon) in [
           ('Appearance', Icons.palette_outlined),
+          ('About JANITRA', Icons.info_outline),
           ('Two-Step Verification', Icons.shield_outlined),
           ('Edit Your Name', Icons.edit_outlined),
           ('Notifications', Icons.notifications_outlined),
@@ -563,6 +565,11 @@ void main() {
             findsOneWidget,
           );
         }
+        await tap(tester, find.text('About JANITRA'));
+        expect(find.byType(AboutPage), findsOneWidget);
+        await tester.pageBack();
+        await settle(tester);
+        expect(tester.state(find.byType(WorkspacePage)), same(workspace));
         await tap(tester, find.text('Appearance'));
         await tap(tester, find.widgetWithText(ChoiceChip, 'Dark'));
         await tester.runAsync(

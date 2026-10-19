@@ -30,6 +30,7 @@ internal class UpdateChannel(private val activity: Activity, messenger: BinaryMe
                         val app = installed()
                         result.success(mapOf(
                             "version" to app.versionName,
+                            "buildNumber" to code(app).toString(),
                             "directory" to directory.absolutePath,
                             "freeBytes" to StatFs(directory.path).availableBytes,
                         ))

@@ -20,10 +20,12 @@ class InstalledApp {
     required this.version,
     required this.directory,
     required this.freeBytes,
+    this.buildNumber,
   });
   final String version;
   final String directory;
   final int freeBytes;
+  final String? buildNumber;
 }
 
 class AppRelease {
@@ -59,6 +61,7 @@ class AndroidUpdatePlatform implements UpdatePlatform {
       version: info['version'] as String,
       directory: info['directory'] as String,
       freeBytes: info['freeBytes'] as int,
+      buildNumber: info['buildNumber'] as String?,
     );
   }
 
