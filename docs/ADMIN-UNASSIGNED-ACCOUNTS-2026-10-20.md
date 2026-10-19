@@ -22,7 +22,7 @@ The new migration permits null scope only where needed for provisioning, setup g
 
 - `lib/features/workspace/workspace_page.dart`: empty-company Team entry.
 - `people_page.dart`, `supervisor_access_sheet.dart`, `username_account_dialog.dart` in the same folder: nullable company, clear unassigned status, creation and later assignment.
-- `supabase/migrations/20261019210136_admin_unassigned_accounts.sql`: constrained unassigned role state and guarded provisioning/assignment changes.
+- `supabase/migrations/20261019211907_admin_unassigned_accounts.sql`: constrained unassigned role state and guarded provisioning/assignment changes. The local filename matches the version recorded by Supabase's migration API.
 - `supabase/functions/manage-users/index.ts`, `_shared/manage_identity.ts`, `personnel-auth/index.ts`: Admin-only null-scope requests and authentication without workplace authorization.
 - Corresponding Flutter, Edge and SQL tests; `tool/test_database.sh` includes the new migration and regression cases.
 
@@ -32,7 +32,8 @@ The new migration permits null scope only where needed for provisioning, setup g
 - Flutter analysis: no errors or warnings; the existing informational lint at `personal_schedule_page.dart:151` remains.
 - **21 manage-users and 12 personnel-auth tests passed**.
 - Isolated SQL tests cover Admin-only unassigned invites, no Company-Wide authority, denied null-scope activation, code expiry, setup after the issuer signs out, username authentication without protected access, later assignment and directory privacy. Existing migration/security checks also pass.
-- Production deployment requires separate approval before these backend changes become active. No real account is created or invited as part of deployment.
+- The user approved production activation. The migration was applied through Supabase's official migration API after the CLI pooler connection was unavailable; existing migration history is retained. No real account is created or invited as part of deployment.
+- `manage-users` and `personnel-auth` are ACTIVE with their intended JWT settings. Live checks confirm Admin-only null-scope invitations, enabled RLS, denied direct client execution of the assignment RPC, unchanged record counts and no new security-advisor findings.
 
 ## Same-version GitHub replacement
 
