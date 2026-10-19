@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#234E70">
+<title>
+JANITRA · Personnel Profile
+</title>
+<link rel="stylesheet" href="../assets/janitra-remaining.css">
+</head>
+<body>
+<div class="screen">
+<header class="head">
+<a class="back" aria-label="Back" href="../janitra_personnel_directory/code.html">
+←
+</a>
+<div class="headcopy">
+<h1>
+Personnel Profile
+</h1>
+</div>
+<div class="avatar" aria-label="Supervisor profile">
+SV
+</div>
+</header>
+<main class="">
+<div class="card section">
+<div class="person-summary">
+<div class="person-avi">
+JD
+</div>
+<div>
+<div class="person-name">
+Juan Dela Cruz
+</div>
+<div class="person-sub">
+Janitorial Personnel
+</div>
+</div>
+</div>
+<div style="margin-top:12px">
+<span class="status">
+Active
+</span>
+</div>
+<div class="divider">
+</div>
+<div class="detail-row">
+<span class="muted">
+Employee ID
+</span>
+<strong>
+JDC-2041
+</strong>
+</div>
+<div class="detail-row">
+<span class="muted">
+Email
+</span>
+<strong>
+juan.delacruz@email.com
+</strong>
+</div>
+<div class="detail-row">
+<span class="muted">
+Agency
+</span>
+<strong>
+ABC Manpower Services
+</strong>
+</div>
+<div class="detail-row">
+<span class="muted">
+Site
+</span>
+<strong>
+SSS Valencia
+</strong>
+</div>
+</div>
+<section class="card section">
+<h2>
+Manage Personnel
+</h2>
+<button class="row-action" style="border:0;border-bottom:1px solid var(--border);width:100%;background:transparent;cursor:pointer;text-align:left" onclick="JANITRA.preview('Edit personnel details')">
+Edit Details 
+<span>
+›
+</span>
+</button>
+<a class="row-action" href="../janitra_employee_pin_management/code.html">
+Manage Employee PIN 
+<span>
+›
+</span>
+</a>
+<a class="row-action" href="../janitra_work_schedule_overview/code.html">
+Manage Work Schedule 
+<span>
+›
+</span>
+</a>
+</section>
+<button class="action danger" onclick="JANITRA.confirm('Deactivate Account','Deactivate Juan Dela Cruz? This would block account access.',()=>JANITRA.preview('Account deactivation'))">
+Deactivate Account
+</button>
+</main>
+</div>
+<div class="dialog" id="notice-dialog" role="dialog" aria-modal="true">
+<div class="dialog-box">
+<h2>
+JANITRA Preview
+</h2>
+<p data-msg>
+</p>
+<button class="action" onclick="JANITRA.close()">
+OK
+</button>
+</div>
+</div>
+<div class="dialog" id="confirm-dialog" role="dialog" aria-modal="true">
+<div class="dialog-box">
+<h2 data-title>
+Confirm
+</h2>
+<p data-desc>
+</p>
+<div class="actions">
+<button class="action" data-confirm>
+Confirm
+</button>
+<button class="action secondary" onclick="JANITRA.close()">
+Cancel
+</button>
+</div>
+</div>
+</div>
+<script src="../assets/janitra-remaining.js">
+</script>
+</body>
+</html>

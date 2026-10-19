@@ -1,0 +1,24 @@
+JANITRA Build 15 - DIRECT PROJECT ROOT UI PATCH
+
+THIS ZIP HAS NO EXTRA PARENT FOLDER.
+Extract it DIRECTLY into ~/Projects/janitra; files under lib/ replace real lib/ files.
+
+Fish commands:
+  cd ~/Projects/janitra
+  unzip -o ~/Downloads/JANITRA-Build15-UI-FIX-DIRECT-PATCH.zip -d .
+  test -f lib/core/secret_text_form_field.dart; and echo "New eye-button widget installed"
+  grep -n SecretTextFormField lib/features/authentication/reset_password_page.dart
+  flutter pub get
+  flutter analyze
+  flutter test
+  flutter build apk --release
+
+This targeted patch is based on the supplied Build 14 and contains only changed source,
+new widget tests, and pubspec version 1.0.0+15. It does not modify Supabase backend.
+Two-step verification layout and the eye buttons for password fields are implemented
+in Flutter source. Not locally built/tested with Flutter SDK in this environment.
+
+Do NOT extract the earlier JANITRA-Build15-MFA-Password-UI-Source.zip into the project:
+it contains JANITRA-Build15-MFA-Password-UI-Source/janitra/ nesting.
+
+If you have uncommitted local edits in the same files, back them up before extracting.

@@ -1,0 +1,11 @@
+# Add flutter_launcher_icons as a dev dependency, then run:
+# dart run flutter_launcher_icons
+# Uses the exact artwork and preserves the already padded adaptive safe zone.
+flutter_launcher_icons:
+  android: true
+  ios: false
+  image_path: "assets/icons/janitra_launcher_1024.png"
+  adaptive_icon_background: "#082853"
+  adaptive_icon_foreground: "assets/icons/janitra_adaptive_foreground_1024.png"
+  adaptive_icon_foreground_inset: 0
+  adaptive_icon_monochrome: "assets/icons/janitra_monochrome_1024.png"

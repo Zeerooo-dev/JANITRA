@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/>
+<meta content="mobile_tab" name="shell-type"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<style>
+
+    @layer base {
+      html, body {
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        background-color: #F5F6F8;
+      }
+      body {
+        overscroll-behavior: none;
+        font-family: 'Atkinson Hyperlegible', 'Inter', system-ui, sans-serif;
+      }
+      .pb-safe { padding-bottom: env(safe-area-inset-bottom, 16px); }
+      .pt-safe { padding-top: env(safe-area-inset-top, 0px); }
+    }
+    ::-webkit-scrollbar { display: none; }
+  
+</style>
+<link href="../assets/tailwind-offline.css" rel="stylesheet"/>
+<link href="../assets/janitra-polish.css" rel="stylesheet"/>
+</head>
+<body class="bg-[#F5F6F8] text-[#202C39] flex flex-col min-h-screen antialiased" data-janitra-screen="janitra_personnel_home_ultra_simple">
+<!-- Status Bar & Accessible Header -->
+<header class="w-full bg-[#FFFFFF] border-b border-[#E3E7EB] pt-safe sticky top-0 z-40">
+<div class="px-5 pt-3 pb-4">
+<div class="flex items-center justify-between">
+<div class="flex flex-col">
+<h1 class="text-[26px] font-bold text-[#202C39] leading-tight">
+Hello, Juan!
+</h1>
+<div class="flex items-center gap-1.5 mt-1 text-[#526070]">
+<span class="material-symbols-outlined text-[20px] text-[#234E70]">
+location_on
+</span>
+<span class="text-[16px] font-medium">
+SSS Valencia
+</span>
+</div>
+</div>
+<!-- Profile Avatar Initials -->
+<div aria-label="Juan Dela Cruz profile" class="w-14 h-14 rounded-full bg-[#234E70] text-white flex items-center justify-center font-bold text-[20px] tracking-wide shrink-0 shadow-sm">
+
+          JD
+        
+</div>
+</div>
+</div>
+</header>
+<!-- Main Accessible Content -->
+<main class="flex-1 w-full max-w-md mx-auto px-5 py-5 pb-28 flex flex-col gap-5">
+<div class="flex flex-col gap-1 pt-1">
+<p class="text-[18px] font-medium text-[#526070]">
+3 of 5 tasks completed
+</p>
+</div>
+<div class="bg-[#FFFFFF] rounded-2xl p-6 border border-[#E3E7EB] shadow-sm flex flex-col gap-5 mt-1">
+<div class="flex flex-col gap-1">
+<span class="text-[14px] font-bold tracking-wider text-[#526070] uppercase">
+YOUR NEXT TASK
+</span>
+<h2 class="text-[24px] font-bold text-[#202C39] leading-snug">
+Cleaning Tables
+</h2>
+</div>
+<div class="flex flex-col gap-3 py-1 border-t border-[#E3E7EB] pt-4">
+<div class="flex items-center gap-3 text-[#202C39]">
+<span class="material-symbols-outlined text-[24px] text-[#234E70] shrink-0">
+schedule
+</span>
+<span class="text-[18px] font-medium">
+10:00 AM
+</span>
+</div>
+<div class="flex items-center gap-3 text-[#202C39]">
+<span class="material-symbols-outlined text-[24px] text-[#234E70] shrink-0">
+location_on
+</span>
+<span class="text-[18px] font-medium">
+Public Area
+</span>
+</div>
+</div>
+<button aria-label="Mark Cleaning Tables as Done" class="w-full h-14 min-h-[56px] bg-[#234E70] hover:bg-[#1a3b56] active:bg-[#132c41] text-white text-[18px] font-bold rounded-xl flex items-center justify-center gap-2.5 shadow-sm transition-colors focus:outline-none focus:ring-4 focus:ring-[#234E70]/30" id="mark-done-btn" onclick="window.location.href='../janitra_task_details_simplified/code.html'">
+<span class="material-symbols-outlined text-[24px] font-bold">
+check
+</span>
+<span class="">
+Mark as Done
+</span>
+</button>
+</div>
+<div class="mt-2 flex flex-col gap-2">
+<button aria-label="View all my tasks" class="w-full h-14 min-h-[56px] bg-[#FFFFFF] hover:bg-[#F5F6F8] text-[#234E70] text-[17px] font-bold rounded-xl border border-[#E3E7EB] flex items-center justify-center gap-2 shadow-sm transition-colors" onclick="window.location.href='../janitra_my_tasks_simplified/code.html'">
+<span class="material-symbols-outlined text-[22px]">
+format_list_bulleted
+</span>
+<span class="">
+View All My Tasks
+</span>
+</button>
+</div>
+</main>
+<!-- Bottom Navigation: Clean, High Contrast, Large Touch Targets (Minimum 56px height) -->
+<nav aria-label="Main navigation" class="fixed bottom-0 left-0 right-0 z-50 bg-[#FFFFFF] border-t border-[#E3E7EB] pb-safe shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">
+<div class="max-w-md mx-auto grid grid-cols-3 h-16">
+<a aria-current="page" class="flex flex-col items-center justify-center h-full min-h-[48px] text-[#234E70]" href="code.html">
+<span class="material-symbols-outlined text-[28px]">
+home
+</span>
+<span class="text-[14px] font-bold mt-0.5">
+Home
+</span>
+</a>
+<a class="flex flex-col items-center justify-center h-full min-h-[48px] text-[#526070] hover:text-[#234E70] transition-colors" href="../janitra_my_tasks_simplified/code.html">
+<span class="material-symbols-outlined text-[28px]">
+checklist
+</span>
+<span class="text-[14px] font-semibold mt-0.5">
+My Tasks
+</span>
+</a>
+<button type="button" class="flex flex-col items-center justify-center h-full min-h-[48px] text-[#526070] hover:text-[#234E70] transition-colors" onclick="alert('The Personnel account profile design is not included yet.')">
+<span class="material-symbols-outlined text-[28px]">
+person
+</span>
+<span class="text-[14px] font-semibold mt-0.5">
+Profile (Coming soon)
+</span>
+</button>
+</div>
+</nav>
+</body>
+</html>

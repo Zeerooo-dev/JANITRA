@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#234E70">
+<title>
+JANITRA · Report Preview
+</title>
+<link rel="stylesheet" href="../assets/janitra-remaining.css">
+</head>
+<body>
+<div class="screen">
+<header class="head">
+<a class="back" aria-label="Back" href="../janitra_reports_dashboard/code.html">
+←
+</a>
+<div class="headcopy">
+<h1>
+Report Preview
+</h1>
+</div>
+<div class="avatar" aria-label="Supervisor profile">
+SV
+</div>
+</header>
+<main class="">
+<div class="report-heading section">
+<div class="small" style="opacity:.88;font-weight:700;letter-spacing:.04em">
+JANITRA
+</div>
+<h2>
+Weekly Work Report
+</h2>
+<p>
+SSS Valencia · Oct 5–10, 2026
+</p>
+</div>
+<section class="section">
+<h2>
+Summary
+</h2>
+<div class="metrics">
+<div class="metric">
+<span>
+Scheduled
+</span>
+<strong>
+48
+</strong>
+</div>
+<div class="metric">
+<span>
+Approved
+</span>
+<strong>
+38
+</strong>
+</div>
+<div class="metric">
+<span>
+Pending
+</span>
+<strong>
+6
+</strong>
+</div>
+<div class="metric">
+<span>
+Rejected / Locked
+</span>
+<strong>
+4
+</strong>
+</div>
+</div>
+</section>
+<section class="section">
+<button class="action secondary" onclick="JANITRA.openFull()">
+View Full Report
+</button>
+</section>
+<div class="actions">
+<button class="action" onclick="JANITRA.reportExport('PDF')">
+Export PDF
+</button>
+<button class="action secondary" onclick="JANITRA.reportExport('Excel (.xlsx)')">
+Export Excel
+</button>
+</div>
+<p class="help" style="margin-top:12px">
+Example report only. Official exports will use secure task records.
+</p>
+<div class="dialog" id="full-preview" role="dialog" aria-modal="true">
+<div class="dialog-box" style="max-height:85dvh;overflow:auto">
+<div class="row between">
+<h2>
+Full Report
+</h2>
+<button class="text-button" onclick="document.getElementById('full-preview').classList.remove('open')">
+Close ✕
+</button>
+</div>
+<p class="small muted">
+ABC Manpower Services · SSS Valencia
+<br>
+Oct 5–10, 2026
+</p>
+<div style="overflow-x:auto">
+<table class="printtable">
+<thead>
+<tr>
+<th>
+Task
+</th>
+<th>
+Employee
+</th>
+<th>
+Status
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+Cleaning Restrooms
+</td>
+<td>
+Juan Dela Cruz
+</td>
+<td>
+Approved
+</td>
+</tr>
+<tr>
+<td>
+Cleaning Pantry
+</td>
+<td>
+Maria Reyes
+</td>
+<td>
+Pending
+</td>
+</tr>
+<tr>
+<td>
+Cleaning Ceiling
+</td>
+<td>
+Juan Dela Cruz
+</td>
+<td>
+Locked
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p class="small muted">
+Detailed verification timestamps and audit records appear in the actual exported documents.
+</p>
+</div>
+</div>
+</main>
+</div>
+<div class="dialog" id="notice-dialog" role="dialog" aria-modal="true">
+<div class="dialog-box">
+<h2>
+JANITRA Preview
+</h2>
+<p data-msg>
+</p>
+<button class="action" onclick="JANITRA.close()">
+OK
+</button>
+</div>
+</div>
+<div class="dialog" id="confirm-dialog" role="dialog" aria-modal="true">
+<div class="dialog-box">
+<h2 data-title>
+Confirm
+</h2>
+<p data-desc>
+</p>
+<div class="actions">
+<button class="action" data-confirm>
+Confirm
+</button>
+<button class="action secondary" onclick="JANITRA.close()">
+Cancel
+</button>
+</div>
+</div>
+</div>
+<script src="../assets/janitra-remaining.js">
+</script>
+</body>
+</html>

@@ -1,0 +1,86 @@
+name: janitra
+description: JANITRA janitorial workforce management for Android.
+publish_to: none
+version: 1.0.0+26
+
+environment:
+  sdk: ^3.13.4
+
+dependencies:
+  flutter:
+    sdk: flutter
+  supabase_flutter: 2.18.2
+  flutter_secure_storage: 11.2.0
+  sqflite: 2.4.4+1
+  cryptography: 2.9.0
+  path: 1.9.1
+  path_provider: 2.1.6
+  pdf: 3.13.1
+  excel_community: 2.6.0
+  archive: 4.5.1
+  xml: 7.0.1
+  share_plus: 13.3.1
+  uuid: 4.5.3
+  http: 1.6.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: 6.0.0
+  flutter_launcher_icons: 0.14.4
+  sqflite_common_ffi: 2.4.3
+
+flutter:
+  uses-material-design: true
+  fonts:
+    - family: Roboto
+      fonts:
+        - asset: assets/fonts/Roboto-Regular.ttf
+        - asset: assets/fonts/Roboto-Bold.ttf
+          weight: 700
+    - family: Geist
+      fonts:
+        - asset: assets/fonts/Geist-Regular.ttf
+        - asset: assets/fonts/Geist-Bold.ttf
+          weight: 700
+    - family: Geist Mono
+      fonts:
+        - asset: assets/fonts/GeistMono-Regular.ttf
+        - asset: assets/fonts/GeistMono-Bold.ttf
+          weight: 700
+    - family: Inter
+      fonts:
+        - asset: assets/fonts/Inter-Regular.ttf
+        - asset: assets/fonts/Inter-Bold.ttf
+          weight: 700
+    - family: Noto Sans
+      fonts:
+        - asset: assets/fonts/NotoSans-Regular.ttf
+        - asset: assets/fonts/NotoSans-Bold.ttf
+          weight: 700
+    - family: Open Sans
+      fonts:
+        - asset: assets/fonts/OpenSans-Regular.ttf
+        - asset: assets/fonts/OpenSans-Bold.ttf
+          weight: 700
+    - family: Poppins
+      fonts:
+        - asset: assets/fonts/Poppins-Regular.ttf
+        - asset: assets/fonts/Poppins-Bold.ttf
+          weight: 700
+    - family: Atkinson Hyperlegible
+      fonts:
+        - asset: assets/fonts/AtkinsonHyperlegible-Regular.ttf
+        - asset: assets/fonts/AtkinsonHyperlegible-Bold.ttf
+          weight: 700
+    - family: Lora
+      fonts:
+        - asset: assets/fonts/Lora-Regular.ttf
+        - asset: assets/fonts/Lora-Bold.ttf
+          weight: 700
+  assets:
+    - assets/fonts/licenses/
+    - assets/fonts/Roboto_LICENSE.txt
+    - assets/icons/janitra_launcher_1024.png
+    - assets/fonts/Roboto-Regular.ttf
+    - assets/fonts/Roboto-Bold.ttf

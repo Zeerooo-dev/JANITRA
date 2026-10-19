@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#234E70">
+<title>
+JANITRA · Approval Deadlines
+</title>
+<link rel="stylesheet" href="../assets/janitra-remaining.css">
+</head>
+<body>
+<div class="screen">
+<header class="head">
+<a class="back" aria-label="Back" href="../janitra_supervisor_dashboard_simplified/code.html">
+←
+</a>
+<div class="headcopy">
+<h1>
+Approval Deadlines
+</h1>
+</div>
+<div class="avatar" aria-label="Supervisor profile">
+SV
+</div>
+</header>
+<main class="">
+<p class="site">
+SSS Valencia
+</p>
+<form onsubmit="JANITRA.submitForm(event,'Approval deadline settings')">
+<section class="card section">
+<h2>
+Monday–Friday
+</h2>
+<label class="label" for="weekday-deadline">
+Review by
+</label>
+<select class="field" id="weekday-deadline">
+<option>
+Next day at 12:00 PM
+</option>
+<option>
+Same day at 6:00 PM
+</option>
+<option>
+24 hours after shift ends
+</option>
+<option>
+Custom
+</option>
+</select>
+</section>
+<section class="card section">
+<h2>
+Saturday Work
+</h2>
+<p class="strong">
+Monday at 12:00 PM
+</p>
+<p class="small muted" style="margin-top:5px">
+Review must be completed before noon.
+</p>
+</section>
+<section class="card section">
+<div class="row between">
+<h2 style="margin:0">
+Sunday Work
+</h2>
+<label class="row small" style="gap:6px">
+<input type="checkbox" checked onchange="document.getElementById('sunday-fields').classList.toggle('hide',!this.checked)">
+ Enabled
+</label>
+</div>
+<div id="sunday-fields" style="margin-top:14px">
+<label class="label" for="sunday-deadline">
+Review by
+</label>
+<select class="field" id="sunday-deadline">
+<option>
+Monday at 6:00 PM
+</option>
+<option>
+Tuesday at 12:00 PM
+</option>
+<option>
+Wednesday at 12:00 PM
+</option>
+</select>
+</div>
+</section>
+<button type="submit" class="action">
+Save Deadline Settings
+</button>
+</form>
+</main>
+</div>
+<div class="dialog" id="notice-dialog" role="dialog" aria-modal="true">
+<div class="dialog-box">
+<h2>
+JANITRA Preview
+</h2>
+<p data-msg>
+</p>
+<button class="action" onclick="JANITRA.close()">
+OK
+</button>
+</div>
+</div>
+<div class="dialog" id="confirm-dialog" role="dialog" aria-modal="true">
+<div class="dialog-box">
+<h2 data-title>
+Confirm
+</h2>
+<p data-desc>
+</p>
+<div class="actions">
+<button class="action" data-confirm>
+Confirm
+</button>
+<button class="action secondary" onclick="JANITRA.close()">
+Cancel
+</button>
+</div>
+</div>
+</div>
+<script src="../assets/janitra-remaining.js">
+</script>
+</body>
+</html>
