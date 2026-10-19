@@ -10,12 +10,16 @@ Future<bool> manageUsernameAccount(
   BuildContext context, {
   required SupabaseClient client,
   required WorkspaceAccess access,
-  required String agencyId,
+  required String? agencyId,
   required Map<String, dynamic> person,
 }) async {
   Map<String, dynamic>? grant;
-  if (person['site_id'] is! String ||
-      !access.managesSite({'id': person['site_id'], 'agency_id': agencyId})) {
+  if (!(access.isAdmin && person['is_unassigned'] == true) &&
+      (person['site_id'] is! String ||
+          !access.managesSite({
+            'id': person['site_id'],
+            'agency_id': agencyId,
+          }))) {
     return false;
   }
   await showModalBottomSheet<bool>(

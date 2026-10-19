@@ -65,7 +65,8 @@ def package(version, code):
     digest = hashlib.file_digest(output.open("rb"), "sha256").hexdigest()
     (target / "SHA256SUMS").write_text(f"{digest}  janitra.apk\n")
     (target / "release-info.json").write_text(json.dumps({"package": "com.example.janitra", "version": version,
-        "versionCode": code, "sha256": digest, "bytes": output.stat().st_size}, indent=2) + "\n")
+        "versionCode": code, "sha256": digest, "bytes": output.stat().st_size,
+        "sourceCommit": subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip()}, indent=2) + "\n")
     shutil.copyfile(notes, target / "CHANGES.md")
     print(verification.strip())
     print(f"Verified {version}+{code}; review artifacts are ready. No release was published.")

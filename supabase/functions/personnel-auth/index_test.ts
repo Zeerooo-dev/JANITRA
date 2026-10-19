@@ -15,6 +15,48 @@ const request = (body: object) =>
     headers: { authorization: "Bearer original-session" },
     body: JSON.stringify(body),
   });
+
+Deno.test("unassigned username login authenticates without implying workplace authorization", async () => {
+  const fixture = context({ state: "unassigned" });
+  const response = await personnelAuth(
+    request({
+      action: "login",
+      identifier: "person.one",
+      password: "test-password",
+    }),
+    fixture.ctx,
+    pepper,
+  );
+  check(
+    response.ok && (await response.json()).session,
+    "unassigned account may receive an Auth session",
+  );
+});
+
+Deno.test("unassigned username provisioning passes null scope to server authorization", async () => {
+  const fixture = context({ passwordConfirmed: true });
+  const response = await manageIdentity(request({}), fixture.ctx, {
+    id: actor,
+    email: "actor@test.invalid",
+  }, {
+    action: "create_personnel",
+    agency_id: null,
+    site_id: null,
+    full_name: "Unassigned",
+    username: "pending.person",
+    request_id: worker,
+    password: "test-password",
+  }, pepper);
+  check(
+    response.ok,
+    "unassigned provisioning must use the existing secure identity flow",
+  );
+  const reserve = fixture.calls.find((x) => x.name === "reserve")!;
+  check(
+    (reserve.args.p_data as Record<string, unknown>).agency_id === null,
+    "server receives explicit null scope",
+  );
+});
 function context(
   options: {
     known?: boolean;

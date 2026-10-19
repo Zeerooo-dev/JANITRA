@@ -192,3 +192,6 @@ unchanged=$(docker exec "$container_name" psql -U postgres -Atq -c "select not e
 if [[ "$result" != denied || "$unchanged" != t ]]; then echo 'FAIL: revoked Company-Wide mutation was accepted'; exit 1; fi
 echo "PASS: confirmed Company-Wide revocation denies the waiting $operation mutation without writing data"
 done
+run_sql supabase/migrations/20261019210136_admin_unassigned_accounts.sql
+run_sql supabase/tests/admin_unassigned_accounts.sql
+run_sql supabase/tests/account_code_handoff.sql

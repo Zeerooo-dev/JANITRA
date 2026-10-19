@@ -28,15 +28,19 @@ class _SupervisorAccessSheetState extends State<SupervisorAccessSheet>
   late final _name = TextEditingController(
     text: widget.user['full_name'] as String,
   );
-  late String _agency = widget.user['agency_id'] as String;
+  late String? _agency =
+      widget.user['agency_id'] as String? ??
+      widget.agencies.firstOrNull?['id'] as String?;
   late bool _active =
       (widget.user['account_active'] ?? widget.user['is_active']) == true;
-  late bool _agencyWide = widget.assignments.any(
-    (r) =>
-        r['agency_id'] == _agency &&
-        r['site_id'] == null &&
-        r['is_active'] == true,
-  );
+  late bool _agencyWide =
+      widget.user['agency_id'] == null ||
+      widget.assignments.any(
+        (r) =>
+            r['agency_id'] == _agency &&
+            r['site_id'] == null &&
+            r['is_active'] == true,
+      );
   late final Set<String> _selected = widget.assignments
       .where((r) => r['is_active'] == true && r['site_id'] is String)
       .map((r) => r['site_id'] as String)
@@ -139,6 +143,9 @@ class _SupervisorAccessSheetState extends State<SupervisorAccessSheet>
                   decoration: const InputDecoration(
                     labelText: 'Manpower company',
                   ),
+                  validator: (value) => value == null
+                      ? 'Add and choose a manpower company first.'
+                      : null,
                   items: widget.agencies
                       .map(
                         (a) => DropdownMenuItem(

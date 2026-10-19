@@ -29,7 +29,8 @@ class PeoplePage extends StatefulWidget {
   final bool embedded;
   final bool supervisorManagement;
   final WorkspaceAccess access;
-  final String agencyId, agencyName;
+  final String? agencyId;
+  final String agencyName;
   final List<Map<String, dynamic>> sites;
 
   @override
@@ -114,7 +115,9 @@ class _PeoplePageState extends State<PeoplePage> {
     }
     final outcome = result['result'];
     setState(
-      () => _notice = outcome == 'already_assigned'
+      () => _notice = outcome == 'unassigned'
+          ? 'Account created. Assign workplace access when a company is ready.'
+          : outcome == 'already_assigned'
           ? 'This person already has access.'
           : outcome == 'suspended'
           ? 'This assignment is suspended. Reactivate it in the list.'
@@ -196,6 +199,82 @@ class _PeoplePageState extends State<PeoplePage> {
       ),
     );
     if (saved == true && mounted) await _load();
+  }
+
+  Future<void> _assignPersonnel(Map<String, dynamic> user) async {
+    if (!widget.access.isAdmin) return;
+    try {
+      final data = await Future.wait([
+        readWorkspaceRows(widget.client.from('agencies').select('id,name')),
+        readWorkspaceRows(
+          widget.client.from('sites').select('id,agency_id,name'),
+        ),
+      ]);
+      if (!mounted) return;
+      if (data[0].isEmpty || data[1].isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Add a manpower company and workplace before assigning access.',
+            ),
+          ),
+        );
+        return;
+      }
+      final saved = await showModalBottomSheet<bool>(
+        context: context,
+        enableDrag: false,
+        isScrollControlled: true,
+        useSafeArea: true,
+        builder: (_) => WorkForm(
+          sheet: true,
+          title: 'Assign Personnel workplace',
+          fields: [
+            WorkField(
+              'agency_id',
+              'Manpower company',
+              choices: {
+                for (final a in data[0]) a['id'] as String: a['name'] as String,
+              },
+            ),
+            WorkField(
+              'site_id',
+              'Workplace',
+              choicesFor: (values) => {
+                for (final s in data[1].where(
+                  (s) => s['agency_id'] == values['agency_id'],
+                ))
+                  s['id'] as String: s['name'] as String,
+              },
+            ),
+            const WorkField(
+              'password',
+              'Confirm your account password',
+              secret: true,
+            ),
+          ],
+          save: (values) async {
+            final response = await invokeProtected(
+              widget.client,
+              'manage-users',
+              body: {
+                ...values,
+                'action': 'assign_personnel',
+                'user_id': user['user_id'],
+              },
+            );
+            if (response.data is! Map || response.data['updated'] != true) {
+              throw const FormatException(
+                'No assignment confirmation received.',
+              );
+            }
+          },
+        ),
+      );
+      if (saved == true && mounted) await _load();
+    } catch (error) {
+      if (mounted) setState(() => _error = functionMessage(error));
+    }
   }
 
   Future<void> _change(Map<String, dynamic> user) async {
@@ -406,6 +485,10 @@ class _PeoplePageState extends State<PeoplePage> {
     required String name,
     required Object? site,
   }) async {
+    final unassignedPersonnel =
+        widget.access.isAdmin &&
+        user['is_unassigned'] == true &&
+        user['role'] == 'personnel';
     final action = await showModalBottomSheet<String>(
       context: context,
       useSafeArea: true,
@@ -447,13 +530,21 @@ class _PeoplePageState extends State<PeoplePage> {
                       ),
                     ),
                   ),
-                  if (canChange && user['account_status'] != 'suspended')
+                  if (unassignedPersonnel)
+                    ListTile(
+                      leading: const Icon(Icons.add_business_outlined),
+                      title: const Text('Assign workplace'),
+                      onTap: () =>
+                          Navigator.pop(sheetContext, 'assign_personnel'),
+                    ),
+                  if ((canChange || unassignedPersonnel) &&
+                      user['account_status'] != 'suspended')
                     ListTile(
                       leading: const Icon(Icons.key_outlined),
                       title: const Text('Setup / recovery code'),
                       onTap: () => Navigator.pop(sheetContext, 'account_code'),
                     ),
-                  if (canChange)
+                  if (canChange || unassignedPersonnel)
                     ListTile(
                       leading: const Icon(Icons.edit_outlined),
                       title: const Text('Edit Personnel'),
@@ -480,7 +571,8 @@ class _PeoplePageState extends State<PeoplePage> {
                     ),
                   if (canChange &&
                       active &&
-                      widget.access.managesAgency(widget.agencyId))
+                      widget.agencyId != null &&
+                      widget.access.managesAgency(widget.agencyId!))
                     ListTile(
                       leading: const Icon(Icons.swap_horiz_outlined),
                       title: const Text('Change agency'),
@@ -514,6 +606,8 @@ class _PeoplePageState extends State<PeoplePage> {
     switch (action) {
       case 'edit_personnel':
         await _editPersonnel(user);
+      case 'assign_personnel':
+        await _assignPersonnel(user);
       case 'supervisor_access':
         await _editSupervisor(user);
       case 'access':
@@ -526,7 +620,7 @@ class _PeoplePageState extends State<PeoplePage> {
               kind: 'employee',
               userId: user['user_id'] as String,
               fullName: name,
-              agencyId: user['agency_id'] as String? ?? widget.agencyId,
+              agencyId: (user['agency_id'] as String? ?? widget.agencyId)!,
               siteId: site as String?,
             ),
           ),
@@ -545,7 +639,9 @@ class _PeoplePageState extends State<PeoplePage> {
     final directory =
         !widget.access.isAdmin && widget.access.isCompanyWideSupervisor;
     final mayInvite =
-        widget.access.managesAgency(widget.agencyId) ||
+        widget.access.isAdmin ||
+        (widget.agencyId != null &&
+            widget.access.managesAgency(widget.agencyId!)) ||
         widget.sites.any(widget.access.managesSite);
     final activeCount = _users
         .where((u) => u['is_active'] == true && u['is_transferred'] != true)
@@ -700,6 +796,7 @@ class _PeoplePageState extends State<PeoplePage> {
                               'id': site,
                             });
                         final active = user['is_active'] == true;
+                        final unassigned = user['is_unassigned'] == true;
                         final canDelete =
                             _historySafeDeletion &&
                             user['can_delete'] == true &&
@@ -733,7 +830,9 @@ class _PeoplePageState extends State<PeoplePage> {
                                     [
                                       if (user['agency_name'] is String)
                                         user['agency_name'] as String,
-                                      personnel
+                                      unassigned
+                                          ? '${personnel ? 'Personnel' : 'Supervisor'} · Workplace not assigned'
+                                          : personnel
                                           ? (user['site_name'] as String? ??
                                                 _siteName(site))
                                           : 'Supervisor${site == null ? ' (company-wide)' : ' · ${user['site_name'] ?? _siteName(site)}'}',
@@ -790,12 +889,15 @@ class _PeoplePageState extends State<PeoplePage> {
                                       Flexible(
                                         child: WorkStatusBadge(
                                           alignment: Alignment.centerRight,
-                                          status: active
+                                          status: unassigned
+                                              ? 'PENDING'
+                                              : active
                                               ? 'Active'
                                               : 'Suspended',
-                                          label:
-                                              user['account_status'] ==
-                                                  'setup_pending'
+                                          label: unassigned
+                                              ? 'Unassigned'
+                                              : user['account_status'] ==
+                                                    'setup_pending'
                                               ? 'Setup pending'
                                               : user['account_status'] ==
                                                     'recovery_pending'
@@ -833,7 +935,7 @@ class _InviteDialog extends StatefulWidget {
     this.supervisorOnly = false,
   });
   final SupabaseClient client;
-  final String agencyId;
+  final String? agencyId;
   final bool allowSupervisor;
   final bool supervisorOnly;
   final List<Map<String, dynamic>> sites;
@@ -887,7 +989,10 @@ class _InviteDialogState extends State<_InviteDialog>
 
   Future<void> _save() async {
     if (_busy || !_form.currentState!.validate()) return;
-    if (_role == 'supervisor' && !_agencyWide && _supervisorSites.isEmpty) {
+    if (widget.agencyId != null &&
+        _role == 'supervisor' &&
+        !_agencyWide &&
+        _supervisorSites.isEmpty) {
       setState(() => _error = 'Select at least one workplace.');
       return;
     }
@@ -1011,7 +1116,13 @@ class _InviteDialogState extends State<_InviteDialog>
                         : (value) => setState(() => _role = value!),
                   ),
                 ],
-                if (_role == 'supervisor') ...[
+                if (widget.agencyId == null) ...[
+                  const SizedBox(height: 12),
+                  const Text(
+                    'This account will have no workplace access until Admin assigns a company and workplace.',
+                  ),
+                ],
+                if (_role == 'supervisor' && widget.agencyId != null) ...[
                   const SizedBox(height: 12),
                   DropdownButtonFormField<bool>(
                     initialValue: _agencyWide,
@@ -1119,7 +1230,7 @@ class _InviteDialogState extends State<_InviteDialog>
                         : 'Enter a valid email.';
                   },
                 ),
-                if (_role == 'personnel') ...[
+                if (_role == 'personnel' && widget.agencyId != null) ...[
                   const SizedBox(height: 12),
                   DropdownButtonFormField<String>(
                     key: ValueKey(_siteId),

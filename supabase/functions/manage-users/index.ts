@@ -40,7 +40,10 @@ export async function manageUsers(
   } catch {
     return reply("Invalid request.", 400);
   }
-  if (!body || typeof body !== "object" || !uuid.test(String(body.agency_id))) {
+  if (
+    !body || typeof body !== "object" || Array.isArray(body) ||
+    (body.agency_id != null && !uuid.test(String(body.agency_id)))
+  ) {
     return reply("Choose a valid manpower company.", 400);
   }
   const { data: identity, error: identityError } = await ctx.supabase.auth
@@ -55,8 +58,54 @@ export async function manageUsers(
   const actor = caller.id;
   const ended = await currentSession(ctx, actor);
   if (ended) return ended;
-  const agency = body.agency_id as string;
+  const agency = (body.agency_id ?? null) as string | null;
   const admin = ctx.supabaseAdmin;
+  if (agency === null) {
+    if (
+      ![
+        "list",
+        "invite",
+        "create_personnel",
+        "issue_account_code",
+        "edit_personnel",
+        "delete_account",
+        "create_agency",
+      ].includes(String(body.action))
+    ) {
+      return reply("Choose a valid manpower company.", 400);
+    }
+    const { data: allowed, error } = await admin.rpc("owner_account_access", {
+      p_actor: actor,
+      p_session: ctx.jwtClaims?.session_id,
+    });
+    if (error || allowed !== true) {
+      return reply("Only Admin can manage unassigned accounts.", 403);
+    }
+  }
+
+  if (body.action === "assign_personnel") {
+    if (!uuid.test(String(body.user_id)) || !uuid.test(String(body.site_id))) {
+      return reply("Choose the Personnel account and workplace.", 400);
+    }
+    const confirmation = await confirmAccount(request, ctx, {
+      id: actor,
+      email: caller.email,
+    }, body.password);
+    if (confirmation) return confirmation;
+    const { data, error } = await admin.rpc("assign_unassigned_personnel", {
+      p_actor: actor,
+      p_session: ctx.jwtClaims?.session_id,
+      p_target: body.user_id,
+      p_agency: agency,
+      p_site: body.site_id,
+    });
+    return error || data !== true
+      ? reply(
+        "Only Admin can assign an unassigned Personnel account. Check the workplace and password setup status.",
+        403,
+      )
+      : Response.json({ updated: true });
+  }
 
   if (body.action === "delete_account") {
     if (!uuid.test(String(body.user_id)) || body.confirmation !== "DELETE") {

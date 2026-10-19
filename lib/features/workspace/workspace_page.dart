@@ -374,9 +374,14 @@ class _WorkspacePageState extends State<WorkspacePage> {
 
   Future<void> _openPeople() async {
     final id = _agencyId;
-    if (id == null || !widget.access.supervisesAgency(id)) return;
-    final name =
-        _agencies.firstWhere((agency) => agency['id'] == id)['name'] as String;
+    if (!widget.access.isAdmin &&
+        (id == null || !widget.access.supervisesAgency(id))) {
+      return;
+    }
+    final name = id == null
+        ? 'Unassigned people'
+        : _agencies.firstWhere((agency) => agency['id'] == id)['name']
+              as String;
     await Navigator.of(context).push(
       MaterialPageRoute<void>(
         builder: (_) => PeoplePage(
@@ -944,7 +949,8 @@ class _WorkspacePageState extends State<WorkspacePage> {
                             embedded: true,
                           );
                         }
-                        if ((index == 4 || index == 5) &&
+                        if ((index == 5 ||
+                                (index == 4 && !widget.access.isAdmin)) &&
                             (_agencyId == null ||
                                 !widget.access.supervisesAgency(_agencyId!))) {
                           return const Center(
@@ -956,17 +962,19 @@ class _WorkspacePageState extends State<WorkspacePage> {
                             ),
                           );
                         }
-                        if (index == 4 && _agencyId != null) {
+                        if (index == 4 &&
+                            (_agencyId != null || widget.access.isAdmin)) {
                           return PeoplePage(
                             key: ValueKey('people/$_agencyId'),
                             client: widget.client,
                             access: widget.access,
-                            agencyId: _agencyId!,
-                            agencyName:
-                                _agencies.firstWhere(
-                                      (a) => a['id'] == _agencyId,
-                                    )['name']
-                                    as String,
+                            agencyId: _agencyId,
+                            agencyName: _agencyId == null
+                                ? 'Unassigned people'
+                                : _agencies.firstWhere(
+                                        (a) => a['id'] == _agencyId,
+                                      )['name']
+                                      as String,
                             sites: _sites,
                             embedded: true,
                           );

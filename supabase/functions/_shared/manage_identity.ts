@@ -25,7 +25,8 @@ export async function manageIdentity(
   const uuid =
     /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
   if (
-    !uuid.test(String(body.site_id)) ||
+    !(uuid.test(String(body.site_id)) ||
+      (body.agency_id == null && body.site_id == null)) ||
     (body.action === "create_personnel" &&
       (!validUsername(username) || !uuid.test(String(body.request_id)) ||
         typeof body.full_name !== "string" ||

@@ -74,6 +74,47 @@ void main() {
     await tester.pumpAndSettle();
   }
 
+  testWidgets('Admin can open Team and cancel Add without a manpower company', (
+    tester,
+  ) async {
+    final backend = WorkspaceTestBackend()
+      ..roles = [
+        {'role': 'admin', 'agency_id': null, 'site_id': null},
+      ]
+      ..agencies.clear();
+    await open(tester, backend);
+    await tapFunction(
+      tester,
+      find.descendant(
+        of: find.byType(NavigationBar),
+        matching: find.text('Team'),
+      ),
+    );
+    expect(find.text('Add'), findsOneWidget);
+    final lists = backend.functionCalls
+        .where((c) => c['action'] == 'list')
+        .length;
+    await tap(tester, find.text('Add'));
+    expect(find.text('Add team member'), findsOneWidget);
+    expect(
+      find.textContaining('no workplace access until Admin'),
+      findsOneWidget,
+    );
+    await tap(tester, find.text('Send invite'));
+    expect(find.text('Enter a name.'), findsOneWidget);
+    await tap(tester, find.text('Cancel'));
+    expect(
+      backend.functionCalls.where((c) => c['action'] == 'list').length,
+      lists,
+    );
+    expect(
+      backend.functionCalls.where((c) => c['action'] == 'invite'),
+      isEmpty,
+    );
+    expect(find.byType(CircularProgressIndicator), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
+
   test('management rights remain scoped to agency and site', () {
     final access = WorkspaceAccess(
       fullName: 'Test',

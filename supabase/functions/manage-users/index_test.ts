@@ -56,7 +56,10 @@ function context(
           error: null,
         };
       }
-      if (name === "manage_supervisor" || name === "edit_personnel") {
+      if (
+        name === "manage_supervisor" || name === "edit_personnel" ||
+        name === "assign_unassigned_personnel"
+      ) {
         return { data: true, error: null };
       }
       if (name === "owner_prepare_account_deletion") {
@@ -143,6 +146,62 @@ function context(
     } as unknown as SupabaseContext,
   };
 }
+
+Deno.test("only Admin can invite without a manpower company", async () => {
+  const admin = context({ owner: true });
+  const response = await manageUsers(
+    request({ ...body, agency_id: null, site_id: null }),
+    admin.ctx,
+  );
+  check(response.ok, "Admin unassigned invitation must work");
+  check(
+    admin.argsList.at(-1)!.p_agency === null &&
+      admin.argsList.at(-1)!.p_site === null,
+    "null assignment must reach guarded SQL",
+  );
+  const supervisor = context();
+  const denied = await manageUsers(
+    request({ ...body, agency_id: null, site_id: null }),
+    supervisor.ctx,
+  );
+  check(
+    denied.status === 403 &&
+      !supervisor.calls.some((c) => c.startsWith("inviteUserByEmail")),
+    "non-Admin must be denied before email send",
+  );
+});
+
+Deno.test("Admin can list people and create the first company without a company id", async () => {
+  for (const action of ["list", "create_agency"]) {
+    const fixture = context({ owner: true });
+    const result = await manageUsers(
+      request({ ...body, action, agency_id: null, name: "First agency" }),
+      fixture.ctx,
+    );
+    check(result.ok, action + " must support empty setup");
+  }
+});
+
+Deno.test("Personnel assignment requires password confirmation and guarded server RPC", async () => {
+  const fixture = context();
+  const result = await manageUsers(
+    request({ ...body, action: "assign_personnel", user_id: target }),
+    fixture.ctx,
+  );
+  check(
+    result.ok && fixture.calls.includes("assign_unassigned_personnel"),
+    "assignment must reach server authorization",
+  );
+  const rejected = context({ validPassword: false });
+  await manageUsers(
+    request({ ...body, action: "assign_personnel", user_id: target }),
+    rejected.ctx,
+  );
+  check(
+    !rejected.calls.includes("assign_unassigned_personnel"),
+    "wrong password cannot assign access",
+  );
+});
 
 Deno.test("email restrictions and rate limits do not masquerade as authorization outages", async () => {
   for (

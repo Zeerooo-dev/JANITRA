@@ -618,6 +618,173 @@ void main() {
       expect(find.text('a' * 43), findsNothing);
     },
   );
+  testWidgets(
+    'Admin assigns a previously unassigned Personnel to a real workplace',
+    (tester) async {
+      final backend = WorkspaceTestBackend()..addSite();
+      final person = <String, dynamic>{
+        'user_id': '00000000-0000-0000-0000-000000000002',
+        'full_name': 'Pending Worker',
+        'role': 'personnel',
+        'agency_id': null,
+        'site_id': null,
+        'is_active': false,
+        'is_unassigned': true,
+        'account_status': 'active',
+        'can_delete': true,
+      };
+      backend.managedUsers.add(person);
+      Map<String, dynamic>? sent;
+      final client = await clientFor(tester, (request) async {
+        if (request.url.path.endsWith('/manage-users')) {
+          final body = jsonDecode(request.body) as Map<String, dynamic>;
+          if (body['action'] == 'assign_personnel') {
+            sent = body;
+            person.addAll({
+              'agency_id': body['agency_id'],
+              'site_id': body['site_id'],
+              'is_active': true,
+              'is_unassigned': false,
+            });
+            return http.Response(
+              '{"updated":true}',
+              200,
+              headers: {'content-type': 'application/json'},
+            );
+          }
+        }
+        return backend.handle(request);
+      });
+      await tester.pumpWidget(
+        MaterialApp(
+          home: PeoplePage(
+            client: client,
+            agencyId: fixtureAgencyId,
+            agencyName: 'Agency',
+            sites: backend.sites,
+            embedded: true,
+            access: const WorkspaceAccess(
+              fullName: 'Admin',
+              roles: [
+                {'role': 'admin', 'agency_id': null, 'site_id': null},
+              ],
+            ),
+          ),
+        ),
+      );
+      await settle(tester);
+      expect(find.text('Unassigned'), findsOneWidget);
+      await tester.tap(find.byTooltip('Manage Pending Worker'));
+      await settle(tester);
+      await tester.tap(find.text('Assign workplace'));
+      await settle(tester);
+      await tester.tap(find.byType(DropdownButtonFormField<String>).first);
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Test Manpower').last);
+      await tester.pumpAndSettle();
+      await tester.tap(find.byType(DropdownButtonFormField<String>).last);
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Test Workplace').last);
+      await tester.pumpAndSettle();
+      await tester.enterText(
+        find.byType(TextFormField).last,
+        'Admin-test-password',
+      );
+      await tester.ensureVisible(find.text('Save'));
+      await tester.tap(find.text('Save'));
+      await settle(tester);
+      expect(sent?['agency_id'], fixtureAgencyId);
+      expect(sent?['site_id'], fixtureSiteId);
+      expect(find.text('Unassigned'), findsNothing);
+      expect(tester.takeException(), isNull);
+    },
+  );
+
+  for (final kind in ['supervisor', 'username', 'email']) {
+    testWidgets('Admin creates unassigned $kind account without a company', (
+      tester,
+    ) async {
+      final backend = WorkspaceTestBackend();
+      Map<String, dynamic>? sent;
+      final client = await clientFor(tester, (request) async {
+        if (request.url.path.endsWith('/manage-users')) {
+          final body = jsonDecode(request.body) as Map<String, dynamic>;
+          if (['invite', 'create_personnel'].contains(body['action'])) {
+            sent = body;
+            return http.Response(
+              jsonEncode(
+                kind == 'username'
+                    ? {
+                        'setup_code': 'a' * 43,
+                        'identifier': 'pending.person',
+                        'expires_at': '2026-10-20T10:00:00Z',
+                      }
+                    : {'result': 'unassigned', 'invitation_sent': true},
+              ),
+              200,
+              headers: {'content-type': 'application/json'},
+            );
+          }
+        }
+        return backend.handle(request);
+      });
+      await tester.pumpWidget(
+        MaterialApp(
+          home: PeoplePage(
+            client: client,
+            agencyId: null,
+            agencyName: 'Unassigned people',
+            sites: const [],
+            embedded: true,
+            access: const WorkspaceAccess(
+              fullName: 'Admin',
+              roles: [
+                {'role': 'admin', 'agency_id': null, 'site_id': null},
+              ],
+            ),
+          ),
+        ),
+      );
+      await settle(tester);
+      await tester.tap(find.text('Add'));
+      await tester.pumpAndSettle();
+      if (kind != 'supervisor') {
+        await tester.tap(find.text('Supervisor').last);
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Personnel').last);
+        await tester.pumpAndSettle();
+        if (kind == 'email') {
+          await tester.ensureVisible(find.text('Username and password'));
+          await tester.tap(find.text('Username and password'));
+          await tester.pumpAndSettle();
+          await tester.tap(find.text('Email invitation').last);
+          await tester.pumpAndSettle();
+        }
+      }
+      final fields = find.byType(TextFormField);
+      await tester.enterText(fields.at(0), 'Pending Person');
+      await tester.enterText(
+        fields.at(1),
+        kind == 'username' ? 'pending.person' : 'pending@example.test',
+      );
+      await tester.enterText(fields.last, 'Admin-test-password');
+      final submit = find.text(
+        kind == 'username' ? 'Create account' : 'Send invite',
+      );
+      await tester.ensureVisible(submit);
+      await tester.tap(submit);
+      await settle(tester);
+      expect(sent?['agency_id'], isNull);
+      expect(sent?['site_id'], isNull);
+      expect(
+        sent?['action'],
+        kind == 'username' ? 'create_personnel' : 'invite',
+      );
+      expect(sent?['full_name'], 'Pending Person');
+      expect(tester.takeException(), isNull);
+    });
+  }
+
   for (final form in ['add', 'recovery', 'delete', 'access']) {
     testWidgets('cancelling an empty $form form does not refresh Team', (
       tester,

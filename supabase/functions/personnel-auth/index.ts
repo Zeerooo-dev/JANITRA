@@ -81,7 +81,7 @@ export async function personnelAuth(
       "actor_session_state",
       { p_actor: data.user.id, p_session: sessionId },
     );
-    if (stateError || state !== "active") {
+    if (stateError || !["active", "unassigned"].includes(String(state))) {
       await ctx.supabase.auth.signOut().catch(() => {});
       return fail(stateError ? 503 : 401);
     }
