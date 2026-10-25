@@ -24,6 +24,8 @@ import 'people_page.dart';
 import 'pin_management_page.dart';
 import '../authentication/mfa_page.dart';
 import 'workspace_access.dart';
+import '../../core/aurora_glass.dart';
+import 'home_setup_panel.dart';
 
 class WorkspacePage extends StatefulWidget {
   const WorkspacePage({
@@ -300,73 +302,50 @@ class _WorkspacePageState extends State<WorkspacePage> {
   );
 
   Widget _home() {
-    final supervisor =
-        _agencyId != null && widget.access.supervisesAgency(_agencyId!);
+    final hasAgency = _agencyId != null;
+    final hasClient = _clients.isNotEmpty;
+    final hasWorkplace = _sites.isNotEmpty;
+    final supervisor = widget.access.isSupervisor;
+    final canAddAgency =
+        widget.access.isAdmin || widget.access.isCompanyWideSupervisor;
+    final canManageAgency =
+        hasAgency && widget.access.managesAgency(_agencyId!);
+    final needsSetup =
+        supervisor && (!hasAgency || !hasClient || !hasWorkplace);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        WorkOverview(
-          key: ValueKey(_agencyId),
-          client: widget.client,
-          access: widget.access,
-          agencyId: _agencyId,
-        ),
-        if (supervisor && _sites.isEmpty) ...[
-          _heading('Your workplaces'),
-          LayoutBuilder(
-            builder: (context, constraints) {
-              Widget count(String label, int value) => Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        '$value',
-                        style: const TextStyle(
-                          fontSize: 28,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(label, style: const TextStyle(fontSize: 16)),
-                    ],
-                  ),
-                ),
-              );
-              final cards = [
-                count('Client companies', _clients.length),
-                count('Workplaces', _sites.length),
-              ];
-              return constraints.maxWidth >= 360 &&
-                      MediaQuery.textScalerOf(context).scale(16) <= 20
-                  ? Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: cards
-                          .map((card) => Expanded(child: card))
-                          .toList(),
-                    )
-                  : Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: cards,
-                    );
-            },
+        if (needsSetup)
+          HomeSetupPanel(
+            hasAgency: hasAgency,
+            hasClient: hasClient,
+            hasWorkplace: hasWorkplace,
+            canAddAgency: canAddAgency,
+            canManageAgency: canManageAgency,
+            isAdmin: widget.access.isAdmin,
+            onAddAgency: _addAgency,
+            onAddClient: _addClient,
+            onAddWorkplace: _addSite,
+            onManageTeam: () => _select(4),
+            onRefreshAccess: widget.onRefreshAccess,
+          )
+        else ...[
+          if (supervisor && hasWorkplace)
+            HomeTeamQuickAction(onManageTeam: () => _select(4)),
+          WorkOverview(
+            key: ValueKey(_agencyId),
+            client: widget.client,
+            access: widget.access,
+            agencyId: _agencyId,
           ),
-          const SizedBox(height: 24),
-          Text(
-            _sites.isEmpty
-                ? 'Add a client company, then add its workplace to begin setting up your team.'
-                : 'Manage your client companies and workplaces from the Workplaces tab.',
-            style: const TextStyle(fontSize: 16),
-          ),
-        ] else if (!supervisor && _sites.isEmpty) ...[
-          _heading('Assigned workplaces'),
-          if (_sites.isEmpty)
-            const Text(
-              'No workplace is assigned. Please contact your supervisor.',
-            )
-          else
-            _siteList(),
+          if (!supervisor && !hasWorkplace) ...[
+            _heading('Assigned workplaces'),
+            const JanitraEmptyState(
+              'No workplace assigned. Ask your supervisor for access.',
+              icon: Icons.location_off_outlined,
+            ),
+          ],
         ],
       ],
     );
@@ -854,159 +833,160 @@ class _WorkspacePageState extends State<WorkspacePage> {
             ),
         ],
       ),
-      body: SafeArea(
-        child: _loading
-            ? const Center(
-                child: CircularProgressIndicator(
-                  semanticsLabel: 'Loading workplaces',
-                ),
-              )
-            : _error != null
-            ? SingleChildScrollView(
-                padding: const EdgeInsets.all(24),
-                child: Column(
+      body: JanitraAuroraBackground(
+        child: SafeArea(
+          child: _loading
+              ? const Center(
+                  child: CircularProgressIndicator(
+                    semanticsLabel: 'Loading workplaces',
+                  ),
+                )
+              : _error != null
+              ? SingleChildScrollView(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    children: [
+                      Semantics(
+                        liveRegion: true,
+                        child: Text(
+                          _error!,
+                          style: const TextStyle(fontSize: 16),
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () => _load(),
+                        child: const Text('Retry'),
+                      ),
+                      TextButton(
+                        onPressed: widget.onRefreshAccess,
+                        child: const Text('Refresh Workplace Access'),
+                      ),
+                    ],
+                  ),
+                )
+              : Column(
                   children: [
-                    Semantics(
-                      liveRegion: true,
-                      child: Text(
-                        _error!,
-                        style: const TextStyle(fontSize: 16),
-                      ),
-                    ),
-                    TextButton(
-                      onPressed: () => _load(),
-                      child: const Text('Retry'),
-                    ),
-                    TextButton(
-                      onPressed: widget.onRefreshAccess,
-                      child: const Text('Refresh Workplace Access'),
-                    ),
-                  ],
-                ),
-              )
-            : Column(
-                children: [
-                  if (_agencies.length > 1)
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
-                      child: DropdownButtonFormField<String>(
-                        key: ValueKey(_agencyId),
-                        initialValue: _agencyId,
-                        isExpanded: true,
-                        itemHeight: null,
-                        decoration: const InputDecoration(
-                          labelText: 'Manpower company',
+                    if (_agencies.length > 1)
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+                        child: DropdownButtonFormField<String>(
+                          key: ValueKey(_agencyId),
+                          initialValue: _agencyId,
+                          isExpanded: true,
+                          itemHeight: null,
+                          decoration: const InputDecoration(
+                            labelText: 'Manpower company',
+                          ),
+                          items: _agencies
+                              .map(
+                                (agency) => DropdownMenuItem(
+                                  value: agency['id'] as String,
+                                  child: Text(agency['name'] as String),
+                                ),
+                              )
+                              .toList(),
+                          onChanged: (id) {
+                            if (id != null && id != _agencyId) _load(id);
+                          },
                         ),
-                        items: _agencies
-                            .map(
-                              (agency) => DropdownMenuItem(
-                                value: agency['id'] as String,
-                                child: Text(agency['name'] as String),
-                              ),
-                            )
-                            .toList(),
-                        onChanged: (id) {
-                          if (id != null && id != _agencyId) _load(id);
-                        },
-                      ),
-                    )
-                  else if (supervisor && _agencies.length == 1)
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
-                      child: InputDecorator(
-                        key: const ValueKey('current-agency'),
-                        decoration: const InputDecoration(
-                          labelText: 'Manpower company',
-                          prefixIcon: Icon(Icons.business_outlined),
-                        ),
-                        child: Tooltip(
-                          message: _agencies.single['name'] as String,
-                          child: Text(
-                            _agencies.single['name'] as String,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
+                      )
+                    else if (supervisor && _agencies.length == 1)
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+                        child: InputDecorator(
+                          key: const ValueKey('current-agency'),
+                          decoration: const InputDecoration(
+                            labelText: 'Manpower company',
+                            prefixIcon: Icon(Icons.business_outlined),
+                          ),
+                          child: Tooltip(
+                            message: _agencies.single['name'] as String,
+                            child: Text(
+                              _agencies.single['name'] as String,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
                         ),
                       ),
-                    )
-                  else if (_agencies.isEmpty)
-                    const Text(
-                      'No manpower company is available. Refresh your workplace access or contact your supervisor.',
-                    ),
-                  Expanded(
-                    child: IndexedStack(
-                      index: _tab,
-                      children: List.generate(6, (index) {
-                        if (!_visited.contains(index)) {
-                          return const SizedBox.shrink();
-                        }
-                        if (index == 3) {
-                          return TasksPage(
-                            key: ValueKey('tasks/$_agencyId'),
-                            client: widget.client,
-                            access: widget.access,
-                            agencyId: _agencyId,
-                            embedded: true,
-                          );
-                        }
-                        if ((index == 5 ||
-                                (index == 4 && !widget.access.isAdmin)) &&
-                            (_agencyId == null ||
-                                !widget.access.supervisesAgency(_agencyId!))) {
-                          return const Center(
-                            child: Padding(
-                              padding: EdgeInsets.all(24),
-                              child: Text(
-                                'Select an agency you supervise to manage its team and reports.',
+
+                    Expanded(
+                      child: IndexedStack(
+                        index: _tab,
+                        children: List.generate(6, (index) {
+                          if (!_visited.contains(index)) {
+                            return const SizedBox.shrink();
+                          }
+                          if (index == 3) {
+                            return TasksPage(
+                              key: ValueKey('tasks/$_agencyId'),
+                              client: widget.client,
+                              access: widget.access,
+                              agencyId: _agencyId,
+                              embedded: true,
+                            );
+                          }
+                          if ((index == 5 ||
+                                  (index == 4 && !widget.access.isAdmin)) &&
+                              (_agencyId == null ||
+                                  !widget.access.supervisesAgency(
+                                    _agencyId!,
+                                  ))) {
+                            return const Center(
+                              child: Padding(
+                                padding: EdgeInsets.all(24),
+                                child: Text(
+                                  'Select an agency you supervise to manage its team and reports.',
+                                ),
                               ),
-                            ),
-                          );
-                        }
-                        if (index == 4 &&
-                            (_agencyId != null || widget.access.isAdmin)) {
-                          return PeoplePage(
-                            key: ValueKey('people/$_agencyId'),
-                            client: widget.client,
-                            access: widget.access,
-                            agencyId: _agencyId,
-                            agencyName: _agencyId == null
-                                ? 'Unassigned people'
-                                : _agencies.firstWhere(
+                            );
+                          }
+                          if (index == 4 &&
+                              (_agencyId != null || widget.access.isAdmin)) {
+                            return PeoplePage(
+                              key: ValueKey('people/$_agencyId'),
+                              client: widget.client,
+                              access: widget.access,
+                              agencyId: _agencyId,
+                              agencyName: _agencyId == null
+                                  ? 'Unassigned people'
+                                  : _agencies.firstWhere(
+                                          (a) => a['id'] == _agencyId,
+                                        )['name']
+                                        as String,
+                              sites: _sites,
+                              embedded: true,
+                            );
+                          }
+                          if (index == 5 && _agencyId != null) {
+                            return ReportsPage(
+                              key: ValueKey('reports/$_agencyId'),
+                              client: widget.client,
+                              agencyId: _agencyId!,
+                              agencyName:
+                                  _agencies.firstWhere(
                                         (a) => a['id'] == _agencyId,
                                       )['name']
                                       as String,
-                            sites: _sites,
-                            embedded: true,
+                              sites: _sites,
+                              embedded: true,
+                            );
+                          }
+                          return SingleChildScrollView(
+                            key: PageStorageKey('workspace/$index/$_agencyId'),
+                            padding: const EdgeInsets.all(20),
+                            child: index == 0
+                                ? _home()
+                                : index == 1
+                                ? _workplaces()
+                                : _profile(),
                           );
-                        }
-                        if (index == 5 && _agencyId != null) {
-                          return ReportsPage(
-                            key: ValueKey('reports/$_agencyId'),
-                            client: widget.client,
-                            agencyId: _agencyId!,
-                            agencyName:
-                                _agencies.firstWhere(
-                                      (a) => a['id'] == _agencyId,
-                                    )['name']
-                                    as String,
-                            sites: _sites,
-                            embedded: true,
-                          );
-                        }
-                        return SingleChildScrollView(
-                          key: PageStorageKey('workspace/$index/$_agencyId'),
-                          padding: const EdgeInsets.all(20),
-                          child: index == 0
-                              ? _home()
-                              : index == 1
-                              ? _workplaces()
-                              : _profile(),
-                        );
-                      }),
+                        }),
+                      ),
                     ),
-                  ),
-                ],
-              ),
+                  ],
+                ),
+        ),
       ),
     );
   }

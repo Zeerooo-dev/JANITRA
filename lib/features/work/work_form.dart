@@ -557,7 +557,8 @@ class _WorkFormState extends State<WorkForm> with WidgetsBindingObserver {
                     tooltip: 'Clear ${f.label}',
                     onPressed: _busy
                         ? null
-                        : () => setState(() => _controllers[f.keyName]!.clear()),
+                        : () =>
+                              setState(() => _controllers[f.keyName]!.clear()),
                     icon: const Icon(Icons.close),
                   )
                 : const Icon(Icons.arrow_drop_down),
@@ -628,9 +629,8 @@ class _WorkFormState extends State<WorkForm> with WidgetsBindingObserver {
     children: [
       Text(
         label,
-        style: Theme.of(context).textTheme.labelLarge?.copyWith(
-          fontWeight: FontWeight.w600,
-        ),
+        style: Theme.of(context).textTheme.labelLarge
+            ?.copyWith(fontWeight: FontWeight.w600),
       ),
       const SizedBox(height: 7),
       input,

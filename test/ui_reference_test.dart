@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/testing.dart';
 import 'package:janitra/app.dart';
+import 'package:janitra/core/appearance_settings.dart';
 import 'package:janitra/features/work/task_page.dart';
 import 'package:janitra/features/work/task_record.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -52,10 +53,12 @@ void main() {
         ),
       );
     }
+    final appearance = AppearanceSettings()..motion = MotionPreference.off;
+    addTearDown(appearance.dispose);
     await tester.pumpWidget(
       RepaintBoundary(
         key: const ValueKey('screen'),
-        child: JanitraApp(client: client),
+        child: JanitraApp(client: client, appearance: appearance),
       ),
     );
     await tester.pumpAndSettle();
@@ -157,6 +160,35 @@ void main() {
       await capture(tester, 'supervisor-detail');
     },
   );
+  for (final scale in [1.0, 2.0]) {
+    testWidgets('Admin setup screen reflows at text scale $scale', (
+      tester,
+    ) async {
+      final backend = WorkspaceTestBackend()
+        ..roles = [
+          {'role': 'admin', 'agency_id': null, 'site_id': null},
+        ]
+        ..agencies.clear();
+      await open(tester, backend, scale: scale);
+      expect(find.text('Set up your workspace'), findsOneWidget);
+      await capture(
+        tester,
+        scale == 1 ? 'admin-home-setup' : 'admin-home-setup-large-text',
+      );
+      await tester.ensureVisible(find.text('Manage unassigned people'));
+      await tester.tap(find.text('Manage unassigned people'));
+      for (var i = 0; i < 4; i++) {
+        await tester.pump();
+        await tester.runAsync(
+          () => Future<void>.delayed(const Duration(milliseconds: 50)),
+        );
+      }
+      await tester.pumpAndSettle();
+      expect(find.text('Add'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+  }
+
   testWidgets('Employee reference home tasks details and profile', (
     tester,
   ) async {

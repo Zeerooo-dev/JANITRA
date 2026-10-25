@@ -2,7 +2,7 @@
 
 Android janitorial workforce management with Flutter, Material 3, and Supabase.
 
-Build 27 includes Profile > About JANITRA, installed version information, and [third-party license notices](licenses/README.md), alongside the optional [GitHub Releases APK updater](docs/ANDROID-UPDATER.md). Its [same-version maintenance update](docs/ADMIN-UNASSIGNED-ACCOUNTS-2026-10-20.md) allows Admin to create accounts before company setup. The public repository excludes signing keys and local configuration. [Release notes](docs/releases/v1.0.0.md) describe the first production-key release. GitHub Actions builds review artifacts only; publishing a release requires separate approval. Older Build 7 details below are historical.
+Version **1.0.1, Build 28** adds guided Home setup, theme-aware aurora backgrounds and glass cards, and clearer task filtering and empty states. See the [release notes](docs/releases/v1.0.1.md) and [review and verification report](docs/BUILD-28-2026-10-25.md). It retains Profile > About, [third-party licenses](licenses/README.md), the optional [GitHub Releases APK updater](docs/ANDROID-UPDATER.md), and [Admin account creation before company setup](docs/ADMIN-UNASSIGNED-ACCOUNTS-2026-10-20.md). Signing keys, local configuration and patch backups are excluded from the public repository. GitHub Actions builds signed review artifacts; publishing requires separate approval. Older Build 7 details below are historical.
 
 Authentication, scoped workspaces, People/PIN management, MFA, schedules/tasks, PIN submission, separate Supervisor confirmation/final approval, deadlines/overrides, encrypted personal offline drafts, history/notifications/audit, PDF/XLSX reports and Supervisor-only agency transfers are implemented. Six migrations and all three guarded functions are deployed. See [build 7](docs/BUILD-7-2026-10-13.md), [phone test guide](docs/PHONE_TEST_GUIDE.md) and [current transfer](docs/JANITRA_TRANSFER_2026-10-13.md).
 
@@ -34,7 +34,7 @@ deno test --allow-env --config supabase/functions/workflow/deno.json supabase/fu
 flutter build apk --release --dart-define-from-file=config/supabase.json
 ```
 
-The optimized test APK retains development signing. Public release signing/distribution is still pending.
+Historical test APKs used development signing. Current public releases use the production key; see the updater guide for compatibility with legacy installations.
 
 The database test script requires Docker and starts a disposable PostgreSQL 17 container with no network or exposed ports. Its Auth fixture emulates Supabase request claims; it does not certify the live Auth/Data API integration.
 

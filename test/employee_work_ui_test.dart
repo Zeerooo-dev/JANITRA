@@ -16,14 +16,18 @@ void main() {
     {'kind': 'work', 'start_minute': 960, 'end_minute': 1200},
   ];
 
-  testWidgets('employee shift shows weekdays, dates, work and breaks', (tester) async {
-    await tester.pumpWidget(MaterialApp(
-      home: Scaffold(
-        body: SingleChildScrollView(
-          child: ScheduleShiftCard(shift: shift, segments: segments),
+  testWidgets('employee shift shows weekdays, dates, work and breaks', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: SingleChildScrollView(
+            child: ScheduleShiftCard(shift: shift, segments: segments),
+          ),
         ),
       ),
-    ));
+    );
     expect(find.text('Morning and evening'), findsOneWidget);
     expect(find.text('Active'), findsOneWidget);
     expect(find.text('Mon'), findsOneWidget);
@@ -33,25 +37,33 @@ void main() {
     expect(find.text('16:00 – 20:00'), findsOneWidget);
   });
 
-  testWidgets('paused overnight shift remains readable on narrow phones', (tester) async {
+  testWidgets('paused overnight shift remains readable on narrow phones', (
+    tester,
+  ) async {
     tester.view.physicalSize = const Size(320, 720);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
     tester.platformDispatcher.textScaleFactorTestValue = 2;
     addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
-    await tester.pumpWidget(MaterialApp(
-      home: Scaffold(
-        body: SingleChildScrollView(
-          child: ScheduleShiftCard(
-            shift: {...shift, 'is_active': false, 'weekdays': [7]},
-            segments: const [
-              {'kind': 'work', 'start_minute': 1380, 'end_minute': 1500},
-            ],
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: SingleChildScrollView(
+            child: ScheduleShiftCard(
+              shift: {
+                ...shift,
+                'is_active': false,
+                'weekdays': [7],
+              },
+              segments: const [
+                {'kind': 'work', 'start_minute': 1380, 'end_minute': 1500},
+              ],
+            ),
           ),
         ),
       ),
-    ));
+    );
     expect(find.text('Paused'), findsOneWidget);
     expect(find.text('23:00 – 01:00 +1 day'), findsOneWidget);
     expect(tester.takeException(), isNull);

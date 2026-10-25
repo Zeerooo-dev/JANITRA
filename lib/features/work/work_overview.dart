@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../core/app_theme.dart';
+import '../../core/aurora_glass.dart';
 import '../workspace/workspace_access.dart';
 import 'task_record.dart';
 import 'work_repository.dart';
@@ -104,7 +105,7 @@ class _WorkOverviewState extends State<WorkOverview>
     if (mounted) await _load();
   }
 
-  Widget _metric(String label, int value) => Card(
+  Widget _metric(String label, int value) => JanitraGlassCard(
     child: Padding(
       padding: const EdgeInsets.all(14),
       child: Column(
@@ -193,7 +194,7 @@ class _WorkOverviewState extends State<WorkOverview>
               icon: Icons.check_circle_outline,
             ),
           for (final task in pending.take(3))
-            Card(
+            JanitraGlassCard(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(14, 12, 14, 10),
                 child: Column(
@@ -265,7 +266,7 @@ class _WorkOverviewState extends State<WorkOverview>
               child: Text('No next cleaning task is assigned today.'),
             )
           else
-            Card(
+            JanitraGlassCard(
               child: Padding(
                 padding: const EdgeInsets.all(18),
                 child: Column(

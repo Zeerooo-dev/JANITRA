@@ -8,6 +8,7 @@ import 'package:http/testing.dart';
 import 'package:janitra/app.dart';
 import 'package:janitra/features/workspace/workspace_access.dart';
 import 'package:janitra/features/workspace/name_editor.dart';
+import 'package:janitra/core/aurora_glass.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'fixtures/workspace_backend.dart';
@@ -629,6 +630,26 @@ void main() {
     },
   );
 
+  testWidgets('Home setup advances through existing workplace actions', (
+    tester,
+  ) async {
+    final backend = WorkspaceTestBackend();
+    await open(tester, backend);
+    await tap(tester, find.text('Add Client Company'));
+    await tester.enterText(find.byType(TextFormField), 'New Client');
+    await tap(tester, find.widgetWithText(FilledButton, 'Add'));
+    expect(find.text('Create a workplace'), findsOneWidget);
+    await tap(tester, find.text('Add Workplace'));
+    await tester.enterText(find.byType(TextFormField), 'Main Office');
+    await tap(tester, find.widgetWithText(FilledButton, 'Add'));
+    expect(find.text('Your setup checklist'), findsNothing);
+    expect(find.text('Manage your team'), findsOneWidget);
+    expect(backend.clients, hasLength(1));
+    expect(backend.sites, hasLength(1));
+    await tapFunction(tester, find.text('Manage your team'));
+    expect(find.text('Add'), findsOneWidget);
+  });
+
   testWidgets('client and workplace creation validate, trim and send scope', (
     tester,
   ) async {
@@ -887,7 +908,10 @@ void main() {
       ('Inactive Cleaner', 'Suspended'),
     ]) {
       final card = find
-          .ancestor(of: find.text(name), matching: find.byType(Card))
+          .ancestor(
+            of: find.text(name),
+            matching: find.byType(JanitraGlassCard),
+          )
           .first;
       final badge = find.descendant(of: card, matching: find.text(status));
       expect(badge, findsOneWidget);

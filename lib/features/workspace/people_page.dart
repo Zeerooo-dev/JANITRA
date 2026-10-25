@@ -12,6 +12,7 @@ import 'username_account_dialog.dart';
 import 'account_code_page.dart';
 import 'supervisor_access_sheet.dart';
 import '../../core/app_theme.dart';
+import '../../core/aurora_glass.dart';
 import '../work/work_form.dart';
 
 class PeoplePage extends StatefulWidget {
@@ -649,6 +650,7 @@ class _PeoplePageState extends State<PeoplePage> {
         .where((u) => u['is_active'] == true && u['is_transferred'] != true)
         .length;
     return Scaffold(
+      backgroundColor: widget.embedded ? Colors.transparent : null,
       appBar: widget.embedded
           ? null
           : AppBar(
@@ -754,7 +756,7 @@ class _PeoplePageState extends State<PeoplePage> {
                         padding: const EdgeInsets.only(top: 12),
                         child: Semantics(
                           liveRegion: true,
-                          child: Card(
+                          child: JanitraGlassCard(
                             child: ListTile(
                               leading: const Icon(Icons.info_outline),
                               title: Text(_notice!),
@@ -813,7 +815,7 @@ class _PeoplePageState extends State<PeoplePage> {
                         final name =
                             user['full_name'] as String? ?? 'Unnamed person';
                         final email = user['email'] as String? ?? '';
-                        return Card(
+                        return JanitraGlassCard(
                           child: Padding(
                             padding: const EdgeInsets.symmetric(vertical: 5),
                             child: Column(

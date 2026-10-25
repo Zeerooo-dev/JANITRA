@@ -6,6 +6,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../core/access_notice.dart';
+import '../../core/aurora_glass.dart';
 
 import '../work/work_repository.dart';
 import '../work/task_record.dart';
@@ -187,6 +188,7 @@ class _ReportsPageState extends State<ReportsPage> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
+    backgroundColor: widget.embedded ? Colors.transparent : null,
     appBar: widget.embedded ? null : AppBar(title: const Text('Work Reports')),
     body: SafeArea(
       child: SingleChildScrollView(
@@ -194,7 +196,7 @@ class _ReportsPageState extends State<ReportsPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Card(
+            JanitraGlassCard(
               child: Padding(
                 padding: const EdgeInsets.all(20),
                 child: Column(

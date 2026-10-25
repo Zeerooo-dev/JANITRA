@@ -224,6 +224,7 @@ void main() {
     bool personnel = false,
     double width = 390,
     double scale = 1,
+    bool freezeAmbient = false,
   }) async {
     tester.view.physicalSize = Size(width, 844);
     tester.view.devicePixelRatio = 1;
@@ -250,6 +251,7 @@ void main() {
       ),
     ))!;
     final settings = AppearanceSettings();
+    if (freezeAmbient) settings.motion = MotionPreference.off;
     addTearDown(() async {
       await tester.pumpWidget(const SizedBox());
       await tester.runAsync(client.dispose);
@@ -648,8 +650,14 @@ void main() {
           tester,
           signedIn: true,
           personnel: personnel,
+          freezeAmbient: true,
         );
-        await tester.runAsync(() => settings.update(mode: ThemeMode.dark));
+        await tester.runAsync(
+          () => settings.update(
+            mode: ThemeMode.dark,
+            motion: MotionPreference.off,
+          ),
+        );
         await settle(tester);
         final role = personnel ? 'personnel' : 'supervisor';
         await expectLater(

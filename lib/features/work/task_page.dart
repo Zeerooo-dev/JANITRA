@@ -10,6 +10,7 @@ import 'task_record.dart';
 import 'work_repository.dart';
 import 'work_form.dart';
 import '../../core/app_theme.dart';
+import '../../core/aurora_glass.dart';
 import '../../core/access_policy.dart';
 import 'offline_access.dart';
 
@@ -127,10 +128,76 @@ class _TasksPageState extends State<TasksPage> {
     if (mounted && selected != null) setState(() => _filter = selected);
   }
 
+  Widget _emptyTasksState() {
+    final scheme = Theme.of(context).colorScheme;
+    final reviewing =
+        _supervisor &&
+        (_filter == 'Needs Confirmation' || _filter == 'Pending Approval');
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 380),
+          child: JanitraGlassCard(
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 54,
+                    height: 54,
+                    decoration: BoxDecoration(
+                      color: scheme.primaryContainer,
+                      borderRadius: BorderRadius.circular(17),
+                    ),
+                    child: Icon(
+                      _error != null
+                          ? Icons.cloud_off_outlined
+                          : reviewing
+                          ? Icons.task_alt_outlined
+                          : Icons.inbox_outlined,
+                      color: scheme.onPrimaryContainer,
+                      size: 27,
+                    ),
+                  ),
+                  const SizedBox(height: 15),
+                  Text(
+                    _loading
+                        ? 'Checking tasks…'
+                        : _error != null
+                        ? 'Tasks temporarily unavailable'
+                        : reviewing
+                        ? 'All caught up'
+                        : 'No tasks in this view.',
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      color: scheme.primary,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                  if (!_loading && reviewing && _error == null) ...[
+                    const SizedBox(height: 6),
+                    Text(
+                      'No tasks in this view.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: scheme.onSurfaceVariant),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final visible = _tasks.where(_show).toList();
     return Scaffold(
+      backgroundColor: widget.embedded ? Colors.transparent : null,
       appBar: widget.embedded
           ? null
           : AppBar(
@@ -156,12 +223,32 @@ class _TasksPageState extends State<TasksPage> {
                     child: OutlinedButton(
                       onPressed: _chooseFilter,
                       style: OutlinedButton.styleFrom(
+                        foregroundColor: Theme.of(context).colorScheme.primary,
+                        backgroundColor: Theme.of(context).colorScheme.surface,
+                        side: BorderSide(
+                          color: Theme.of(context).colorScheme.primary
+                              .withValues(alpha: 0.4),
+                        ),
                         padding: const EdgeInsets.symmetric(
                           horizontal: 12,
                           vertical: 16,
                         ),
                       ),
-                      child: Text(_filter),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(Icons.tune_outlined, size: 18),
+                          const SizedBox(width: 8),
+                          Flexible(
+                            child: Text(
+                              _filter,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          const Icon(Icons.expand_more, size: 19),
+                        ],
+                      ),
                     ),
                   ),
                   if (widget.embedded)
@@ -184,25 +271,47 @@ class _TasksPageState extends State<TasksPage> {
                 ),
               ),
             if (repo.cacheUnavailable)
-              const Padding(
-                padding: EdgeInsets.all(16),
-                child: Text(
-                  'Offline storage is unavailable. Reconnect to check and submit work.',
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                child: Container(
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: Color.alphaBlend(
+                      Theme.of(context).colorScheme.tertiary
+                          .withValues(alpha: 0.09),
+                      Theme.of(context).colorScheme.surface,
+                    ),
+                    border: Border.all(
+                      color: Theme.of(context).colorScheme.tertiary
+                          .withValues(alpha: 0.27),
+                    ),
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.cloud_off_outlined,
+                        color: Theme.of(context).colorScheme.tertiary,
+                      ),
+                      const SizedBox(width: 12),
+                      const Expanded(
+                        child: Text(
+                          'Offline storage is unavailable. Reconnect to check and submit work.',
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             Expanded(
               child: visible.isEmpty
-                  ? Center(
-                      child: Text(
-                        _loading ? 'Loading…' : 'No tasks in this view.',
-                      ),
-                    )
+                  ? _emptyTasksState()
                   : ListView.builder(
                       padding: const EdgeInsets.symmetric(horizontal: 20),
                       itemCount: visible.length,
                       itemBuilder: (context, index) {
                         final t = visible[index];
-                        return Card(
+                        return JanitraGlassCard(
                           child: InkWell(
                             borderRadius: BorderRadius.circular(14),
                             child: Padding(

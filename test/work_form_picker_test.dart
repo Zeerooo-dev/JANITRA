@@ -34,13 +34,23 @@ void main() {
     return saved;
   }
 
-  testWidgets('activity and shift form labels sit above populated inputs', (tester) async {
+  testWidgets('activity and shift form labels sit above populated inputs', (
+    tester,
+  ) async {
     await launchForm(tester, const [
-      WorkField('site_id', 'Workplace', value: 'site-1',
-          choices: {'site-1': 'Main office'}),
+      WorkField(
+        'site_id',
+        'Workplace',
+        value: 'site-1',
+        choices: {'site-1': 'Main office'},
+      ),
       WorkField('name', 'Schedule name', value: 'Morning shift'),
-      WorkField('starts_on', 'Start date', value: '2026-10-18',
-          input: WorkFieldInput.date),
+      WorkField(
+        'starts_on',
+        'Start date',
+        value: '2026-10-18',
+        input: WorkFieldInput.date,
+      ),
     ]);
     expect(find.text('Workplace'), findsOneWidget);
     expect(find.text('Schedule name'), findsOneWidget);
@@ -49,7 +59,8 @@ void main() {
     expect(find.text('Morning shift'), findsOneWidget);
     // No floating labels can collide with values or input outlines.
     for (final decorator in tester.widgetList<InputDecorator>(
-        find.byType(InputDecorator))) {
+      find.byType(InputDecorator),
+    )) {
       expect(decorator.decoration.labelText, isNull);
     }
   });
