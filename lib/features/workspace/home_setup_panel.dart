@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../core/aurora_glass.dart';
+import '../../core/appearance_settings.dart';
 
 /// Guides authorized Supervisors through workspace setup using existing actions.
 /// This widget never creates a company, grants access, or submits data itself.
@@ -82,6 +83,13 @@ class HomeSetupPanel extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
+    final highContrast =
+        context
+            .dependOnInheritedWidgetOfExactType<AppearanceScope>()
+            ?.notifier
+            ?.highContrast ??
+        false;
+    final heroInk = highContrast ? colors.onSurface : colors.onPrimaryContainer;
     final next = _nextStep;
     final allowed = _canPerformNext;
     final heading = allowed
@@ -133,7 +141,7 @@ class HomeSetupPanel extends StatelessWidget {
                   padding: const EdgeInsets.all(10),
                   child: Icon(
                     allowed ? _icons[next] : Icons.lock_outline,
-                    color: colors.onPrimaryContainer,
+                    color: heroInk,
                   ),
                 ),
               ),
@@ -141,7 +149,7 @@ class HomeSetupPanel extends StatelessWidget {
               Text(
                 allowed ? 'LET\'S GET STARTED' : 'WORKSPACE ACCESS',
                 style: theme.textTheme.labelSmall?.copyWith(
-                  color: colors.onPrimaryContainer,
+                  color: heroInk,
                   fontWeight: FontWeight.w800,
                   letterSpacing: 1.2,
                 ),
@@ -151,15 +159,13 @@ class HomeSetupPanel extends StatelessWidget {
                 heading,
                 style: theme.textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.w800,
-                  color: colors.onPrimaryContainer,
+                  color: heroInk,
                 ),
               ),
               const SizedBox(height: 8),
               Text(
                 subheading,
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: colors.onPrimaryContainer,
-                ),
+                style: theme.textTheme.bodyMedium?.copyWith(color: heroInk),
               ),
               const SizedBox(height: 20),
               SizedBox(

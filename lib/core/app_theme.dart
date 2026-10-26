@@ -42,6 +42,30 @@ ThemeData janitraTheme({
       ? const Color(0xFF485566)
       : janitraBorder;
   final family = font == 'system' ? null : font;
+  Color navigationSurface(Color color) {
+    for (
+      var step = 0;
+      highContrast &&
+          step < 10 &&
+          colorContrast(Colors.white, color) < 7 &&
+          colorContrast(Colors.black, color) < 7;
+      step++
+    ) {
+      color = Color.lerp(color, dark ? Colors.black : Colors.white, .2)!;
+    }
+    return color;
+  }
+
+  final barSurface = navigationSurface(
+    Color.alphaBlend(accent.withValues(alpha: dark ? .55 : .12), surface),
+  );
+  final minimum = highContrast ? 7.0 : 4.5;
+  final barInk = readableColor(ink, barSurface, minimum);
+  final barMuted = readableColor(muted, barSurface, minimum);
+  final barPrimary = readableColor(primary, barSurface, minimum);
+  final indicator = navigationSurface(
+    Color.alphaBlend(primary.withValues(alpha: .18), barSurface),
+  );
   return ThemeData(
     brightness: brightness,
     useMaterial3: true,
@@ -100,8 +124,8 @@ ThemeData janitraTheme({
       bodyMedium: TextStyle(fontSize: 14, height: 1.4, color: ink),
     ),
     appBarTheme: AppBarTheme(
-      backgroundColor: scaffold,
-      foregroundColor: ink,
+      backgroundColor: barSurface,
+      foregroundColor: barInk,
       surfaceTintColor: Colors.transparent,
       elevation: 0,
       scrolledUnderElevation: 0,
@@ -111,7 +135,7 @@ ThemeData janitraTheme({
         fontFamily: family,
         fontSize: 20,
         fontWeight: FontWeight.w700,
-        color: ink,
+        color: barInk,
       ),
     ),
     cardTheme: CardThemeData(
@@ -188,20 +212,17 @@ ThemeData janitraTheme({
       style: TextButton.styleFrom(minimumSize: const Size(44, 44)),
     ),
     navigationBarTheme: NavigationBarThemeData(
-      iconTheme:
-          dark || background != null || accent != janitraNavy || highContrast
-          ? WidgetStateProperty.resolveWith(
-              (states) => IconThemeData(
-                color: states.contains(WidgetState.selected) ? primary : muted,
-              ),
-            )
-          : null,
+      iconTheme: WidgetStateProperty.resolveWith(
+        (states) => IconThemeData(
+          color: states.contains(WidgetState.selected)
+              ? readableColor(primary, indicator, minimum)
+              : barMuted,
+        ),
+      ),
       height: 70,
-      backgroundColor: surface,
+      backgroundColor: barSurface,
       surfaceTintColor: Colors.transparent,
-      indicatorColor: dark || background != null
-          ? Color.lerp(surface, primary, .15)
-          : const Color(0xFFEAF1F8),
+      indicatorColor: indicator,
       labelTextStyle: WidgetStateProperty.resolveWith(
         (s) => TextStyle(
           fontFamily: family,
@@ -209,7 +230,7 @@ ThemeData janitraTheme({
           fontWeight: s.contains(WidgetState.selected)
               ? FontWeight.w700
               : FontWeight.w500,
-          color: s.contains(WidgetState.selected) ? primary : muted,
+          color: s.contains(WidgetState.selected) ? barPrimary : barMuted,
         ),
       ),
     ),

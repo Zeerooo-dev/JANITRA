@@ -1,7 +1,7 @@
 name: janitra
 description: JANITRA janitorial workforce management for Android.
 publish_to: none
-version: 1.0.1+28
+version: 1.0.2+29
 
 environment:
   sdk: ^3.13.4
@@ -79,6 +79,7 @@ flutter:
         - asset: assets/fonts/Lora-Bold.ttf
           weight: 700
   assets:
+    - assets/privacy/policy.json
     - assets/fonts/licenses/
     - assets/fonts/Roboto_LICENSE.txt
     - assets/icons/janitra_launcher_1024.png

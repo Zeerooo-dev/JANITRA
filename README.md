@@ -2,6 +2,8 @@
 
 Android janitorial workforce management with Flutter, Material 3, and Supabase.
 
+The **unpublished 1.0.2+29 candidate** adds the [Privacy Policy](docs/privacy/index.html), fixes high-contrast setup text and colors the navigation bars, and adds About → Check for Updates. Read the [changes](docs/PRIVACY-UI-CHANGES-2026-10-27.md), [content verification and open decisions](docs/PRIVACY-VERIFICATION-2026-10-27.md), and [Pages hosting preparation](docs/privacy/HOSTING.md) before public rollout. The last published version remains 1.0.1.
+
 Version **1.0.1, Build 28** adds guided Home setup, theme-aware aurora backgrounds and glass cards, and clearer task filtering and empty states. See the [release notes](docs/releases/v1.0.1.md) and [review and verification report](docs/BUILD-28-2026-10-25.md). It retains Profile > About, [third-party licenses](licenses/README.md), the optional [GitHub Releases APK updater](docs/ANDROID-UPDATER.md), and [Admin account creation before company setup](docs/ADMIN-UNASSIGNED-ACCOUNTS-2026-10-20.md). Signing keys, local configuration and patch backups are excluded from the public repository. GitHub Actions builds signed review artifacts; publishing requires separate approval. Older Build 7 details below are historical.
 
 Authentication, scoped workspaces, People/PIN management, MFA, schedules/tasks, PIN submission, separate Supervisor confirmation/final approval, deadlines/overrides, encrypted personal offline drafts, history/notifications/audit, PDF/XLSX reports and Supervisor-only agency transfers are implemented. Six migrations and all three guarded functions are deployed. See [build 7](docs/BUILD-7-2026-10-13.md), [phone test guide](docs/PHONE_TEST_GUIDE.md) and [current transfer](docs/JANITRA_TRANSFER_2026-10-13.md).

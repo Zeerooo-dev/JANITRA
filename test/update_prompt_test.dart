@@ -8,6 +8,7 @@ import 'package:http/testing.dart';
 import 'package:janitra/core/app_theme.dart';
 import 'package:janitra/features/updates/apk_updater.dart';
 import 'package:janitra/features/updates/update_prompt.dart';
+import 'package:janitra/features/about/about_page.dart';
 
 import 'support/update_fixtures.dart';
 
@@ -86,6 +87,91 @@ void main() {
   tearDown(() {
     updater.dispose();
   });
+
+  Future<void> openAbout(WidgetTester tester) async {
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+    final navigator = GlobalKey<NavigatorState>();
+    await tester.pumpWidget(
+      UpdatePromptHost(
+        navigatorKey: navigator,
+        updater: updater,
+        child: MaterialApp(navigatorKey: navigator, home: const AboutPage()),
+      ),
+    );
+    await tester.pumpAndSettle();
+  }
+
+  testWidgets(
+    'About manual check can reopen after startup Later and check again',
+    (tester) async {
+      await openAbout(tester);
+      await tester.pump(const Duration(seconds: 2));
+      await tester.pumpAndSettle();
+      expect(find.byType(UpdateDialog), findsOneWidget);
+      expect(updater.checks, 1);
+      await tester.tap(find.text('Later'));
+      await tester.pumpAndSettle();
+      expect(find.byType(AboutPage), findsOneWidget);
+      await tester.tap(find.text('Check for Updates'));
+      await tester.pumpAndSettle();
+      expect(find.byType(UpdateDialog), findsOneWidget);
+      expect(updater.checks, 2);
+      expect(platform.installed, 0);
+      await tester.tap(find.text('Later'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Check for Updates'));
+      await tester.pumpAndSettle();
+      expect(updater.checks, 3);
+      expect(find.byType(UpdateDialog), findsOneWidget);
+      await tester.tap(find.text('Later'));
+      await tester.pumpAndSettle();
+      await tester.pumpWidget(const SizedBox());
+    },
+  );
+
+  for (final fail in [false, true]) {
+    testWidgets(
+      'About manual check handles ${fail ? 'network failure' : 'no update'} and prevents duplicate requests',
+      (tester) async {
+        final checked = Completer<AppRelease?>();
+        updater.checkResult = checked.future;
+        await openAbout(tester);
+        await tester.tap(find.text('Check for Updates'));
+        await tester.pump();
+        expect(find.text('Checking for updates…'), findsOneWidget);
+        expect(
+          tester
+              .widget<OutlinedButton>(
+                find.widgetWithText(OutlinedButton, 'Checking for updates…'),
+              )
+              .onPressed,
+          isNull,
+        );
+        if (fail) {
+          checked.completeError(
+            const UpdateFailure(
+              'Updates could not be checked. Try again later.',
+            ),
+          );
+        } else {
+          checked.complete(null);
+        }
+        await tester.pumpAndSettle();
+        expect(updater.checks, 1);
+        expect(
+          find.text(
+            fail
+                ? 'Updates could not be checked. Try again later.'
+                : 'JANITRA is up to date.',
+          ),
+          findsOneWidget,
+        );
+        expect(find.byType(UpdateDialog), findsNothing);
+        expect(platform.installed, 0);
+        await tester.pumpWidget(const SizedBox());
+      },
+    );
+  }
 
   Future<void> show(
     WidgetTester tester, {

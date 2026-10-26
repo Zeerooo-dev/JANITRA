@@ -19,6 +19,13 @@ class UpdatePromptHost extends StatefulWidget {
   final Widget child;
   final ApkUpdater? updater;
 
+  static Future<String?> checkForUpdates(BuildContext context) async {
+    final host = context.findAncestorStateOfType<_UpdatePromptHostState>();
+    return host == null
+        ? 'Update checking is available in the Android release app.'
+        : host.checkManually(context);
+  }
+
   @override
   State<UpdatePromptHost> createState() => _UpdatePromptHostState();
 }
@@ -30,6 +37,46 @@ class _UpdatePromptHostState extends State<UpdatePromptHost>
   String? _pendingPath;
   Timer? _timer;
   bool _shown = false;
+  bool _manualChecking = false, _dialogOpen = false;
+
+  Future<String?> checkManually(BuildContext source) async {
+    if (_updater == null) {
+      return 'Update checking is available in the Android release app.';
+    }
+    if (_manualChecking || _dialogOpen) {
+      return 'An update check is already open.';
+    }
+    _manualChecking = true;
+    _shown = true;
+    _timer?.cancel();
+    try {
+      final saved = await _updater!.restorePendingPermission();
+      final release = saved?.$1 ?? await _updater!.check();
+      if (!mounted ||
+          !source.mounted ||
+          ModalRoute.of(source)?.isCurrent == false) {
+        return null;
+      }
+      if (release == null) return 'JANITRA is up to date.';
+      if (WidgetsBinding.instance.lifecycleState != AppLifecycleState.resumed) {
+        return 'Return to JANITRA and check again.';
+      }
+      final navigator = widget.navigatorKey.currentState;
+      if (navigator == null) {
+        return 'Update checking is temporarily unavailable.';
+      }
+      _pending = release;
+      _pendingPath = saved?.$2;
+      await _openDialog(navigator);
+      return null;
+    } on UpdateFailure catch (error) {
+      return error.message;
+    } catch (_) {
+      return 'Could not check for updates. Check your connection and try again.';
+    } finally {
+      _manualChecking = false;
+    }
+  }
 
   @override
   void initState() {
@@ -70,7 +117,7 @@ class _UpdatePromptHostState extends State<UpdatePromptHost>
 
   void _showWhenReady() {
     _timer?.cancel();
-    if (!mounted || _shown || _pending == null) return;
+    if (!mounted || _shown || _dialogOpen || _pending == null) return;
     final navigator = widget.navigatorKey.currentState;
     if (WidgetsBinding.instance.lifecycleState != AppLifecycleState.resumed ||
         navigator == null ||
@@ -78,16 +125,29 @@ class _UpdatePromptHostState extends State<UpdatePromptHost>
       _timer = Timer(const Duration(seconds: 2), _showWhenReady);
       return;
     }
+    unawaited(_openDialog(navigator));
+  }
+
+  Future<void> _openDialog(NavigatorState navigator) async {
     _shown = true;
-    showDialog<void>(
-      context: navigator.overlay!.context,
-      barrierDismissible: false,
-      builder: (_) => UpdateDialog(
-        updater: _updater!,
-        release: _pending!,
-        initialPath: _pendingPath,
-      ),
-    );
+    _dialogOpen = true;
+    final release = _pending!;
+    final path = _pendingPath;
+    try {
+      await showDialog<void>(
+        context: navigator.overlay!.context,
+        barrierDismissible: false,
+        builder: (_) => UpdateDialog(
+          updater: _updater!,
+          release: release,
+          initialPath: path,
+        ),
+      );
+    } finally {
+      _dialogOpen = false;
+      _pending = null;
+      _pendingPath = null;
+    }
   }
 
   @override

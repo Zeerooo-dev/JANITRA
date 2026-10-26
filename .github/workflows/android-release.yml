@@ -32,6 +32,10 @@ jobs:
           cache: true
       - run: flutter pub get
       - run: python3 tool/check_source_secrets.py
+      - name: Verify bundled and public Privacy Policy
+        run: |
+          python3 tool/build_privacy_policy.py --check
+          python3 tool/test_privacy_policy.py
       - name: Analyze and test
         run: |
           flutter analyze --no-pub --no-fatal-infos

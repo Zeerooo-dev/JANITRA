@@ -1,0 +1,109 @@
+{
+  "application": "JANITRA",
+  "operator": "Zeerooo-dev",
+  "privacyEmail": "jeffirie12@gmail.com",
+  "effectiveDate": "2026-10-27",
+  "updatedDate": "2026-10-27",
+  "sections": [
+    {
+      "title": "1. Introduction",
+      "paragraphs": [
+        "JANITRA helps manpower agencies, Admins, Supervisors and Personnel manage workplaces, cleaning schedules, assigned activities, work submissions and approvals. This policy explains the information processed by JANITRA, its uses and access controls, and how to raise a privacy request.",
+        "The developer/operator and privacy contact are identified above. Participating employers and agencies are responsible for the workforce information they enter and their authorized use of reports. Applicable processing must have a lawful basis under the Philippine Data Privacy Act of 2012 (Republic Act No. 10173), such as an applicable contract, legal obligation or legitimate interest. Using this app does not by itself constitute consent to every use of personal information."
+      ]
+    },
+    {
+      "title": "2. Information processed",
+      "paragraphs": ["Depending on the account and features used, JANITRA processes:"],
+      "bullets": [
+        "Account information: full name, username, email when supplied or required, account identifiers, Admin/Supervisor/Personnel role, activation or suspension status, agency/workplace assignments and assignment changes.",
+        "Work information: client and workplace names, work shifts, cleaning schedules, assigned activities and task checklists, draft changes, submitted completion claims, deadlines, approval/rejection/locking status, remarks, and the people and times associated with verification and approval.",
+        "Security information: Supabase authentication credentials and sessions, password setup/recovery records, expiring one-time code verification records, PIN verification records, two-step verification enrollment and challenges, rate-limit records, notifications and audit/security events.",
+        "Technical information: connection and request information processed by Supabase, the configured email provider and GitHub, including network addresses, request timing and client information needed to operate and protect their services. JANITRA's update check sends ordinary requests to GitHub for release information and APK downloads.",
+        "On-device information: saved authentication sessions, appearance preferences, encrypted personal work snapshots and drafts, locally generated reports, and downloaded APK update files."
+      ]
+    },
+    {
+      "title": "3. How information is used",
+      "bullets": [
+        "Create authorized accounts, support email or username sign-in, and provide password setup, recovery and account security.",
+        "Assign people to agencies and workplaces; display shifts, cleaning schedules and tasks; record checklist work and completion claims.",
+        "Verify PIN-backed work actions, support separate Supervisor verification and final approval, enforce deadlines, and record authorized overrides.",
+        "Provide work notifications, audit records and authorized PDF/XLSX reports.",
+        "Save personal offline drafts and safely synchronize them after authentication and workplace access are revalidated.",
+        "Prevent unauthorized use, investigate errors or disputes, and address lawful privacy requests and applicable legal obligations."
+      ],
+      "paragraphs": ["The reviewed app has no advertising, behavioral-advertising or third-party analytics SDK. It does not request camera, microphone, contacts or GPS permissions. Workplace location names are entered work information, not live GPS tracking. These statements describe the current app, rather than all services offered independently by its providers."]
+    },
+    {
+      "title": "4. Who may access information",
+      "bullets": [
+        "Admin has system-wide workforce access across agencies and sites and can manage Supervisor permissions and authorized Personnel accounts. Admin accounts are hidden from the ordinary Team roster; their actions may still appear in relevant audit history.",
+        "Company-Wide Supervisors can view and manage authorized workforce operations across manpower companies and sites, including Personnel, schedules, tasks, approvals and reports. They cannot manage other Supervisors or create Admins.",
+        "Site-Specific Supervisors are restricted to their assigned agency/sites and authorized Personnel. They cannot change Supervisor permissions or manage other Supervisors.",
+        "Personnel can access their own account, assigned work, personal schedules, task status and relevant workplace information. They cannot manage other accounts.",
+        "Authorized technical administrators and service providers may process information necessary to run, secure and support the system."
+      ],
+      "paragraphs": ["JANITRA generates reports containing authorized work information. The person exporting a PDF/XLSX chooses whether and with whom to share it through the device's sharing tools. Client representatives do not have a separate application role; receipt of a report does not grant application access. Agencies and report recipients are responsible for their subsequent use and handling of those copies."]
+    },
+    {
+      "title": "5. Authentication, PINs and two-step verification",
+      "paragraphs": [
+        "Supabase Auth manages email/password authentication, authenticated sessions and authenticator-based two-step verification. Personnel may use a username without an email; the backend maps it to an internal authentication identity. An optional contact email is separate from that internal identity.",
+        "Passwords and PINs are transmitted to the relevant protected service for verification. JANITRA does not provide managers with permanent passwords or readable stored PINs. PIN verification credentials and setup/recovery code verification values are stored in protected backend records. Issued one-time codes are temporarily shown to the authorized issuer for direct delivery to the person after identity verification.",
+        "Authenticator setup can display a private enrollment key and processes one-time verification codes. Users should keep passwords, PINs, setup/recovery codes and authenticator keys private. Protected operations require server authorization; a local screen or saved role alone does not grant access."
+      ]
+    },
+    {
+      "title": "6. Offline drafts and local files",
+      "paragraphs": [
+        "After online synchronization, JANITRA stores authorized personal task/schedule snapshots and drafts in an encrypted on-device database. The encryption key and persisted authentication session use the platform's secure-storage facilities. Appearance settings are also saved locally.",
+        "Offline reopening is limited to previously verified personal work, the same authenticated account/session, and the earlier of session expiry or eight hours after verification. This is an access limit, not a promise that every cached byte is automatically erased at that time. Offline permission changes, official PIN verification, final task submission and approval are not permitted.",
+        "On reconnection, draft synchronization revalidates authentication and scope and checks versions/conflicts, deadlines and duplicate requests. A draft is not a finalized task record until online submission is confirmed. Sign-out ends the authenticated session and protected access. When offline access is invalidated, the app attempts to remove non-draft snapshots; encrypted drafts and their stored encryption key may remain on the device. Sign-out is not a complete local-data erasure operation. Shared devices should be protected with a screen lock, and sensitive local files should be removed before handing a device to someone else.",
+        "PDF/XLSX exports are written to the app's local documents area and can be shared. Those report files are not encrypted by JANITRA's work-draft encryption and are not automatically removed by work-cache cleanup on sign-out. Copies shared to another app or recipient remain outside JANITRA's control. Users should remove sensitive exports from shared devices and handle shared copies appropriately.",
+        "Downloaded APK update files are stored locally for Android's installer. Installation requires Android's security prompts; JANITRA does not silently install updates."
+      ]
+    },
+    {
+      "title": "7. Service providers and hosting",
+      "bullets": [
+        "Supabase provides authentication, the PostgreSQL database and backend Edge Functions. The verified primary project region is Northeast Asia (Tokyo), Japan, ap-northeast-1. The reviewed app does not use Supabase Storage buckets for user file uploads.",
+        "Google Gmail SMTP is configured to deliver transactional invitation and recovery emails. Relevant recipient addresses and email contents are processed for that delivery.",
+        "GitHub provides release metadata and APK downloads. Requests do not intentionally include JANITRA account credentials, PINs or workforce records. A public policy hosted through GitHub Pages is also served by GitHub.",
+        "Android and installed sharing applications handle secure storage, the APK installer and files a user chooses to share. An authenticator application chosen by the user handles their authenticator enrollment and codes."
+      ],
+      "paragraphs": ["Primary application data is hosted in Japan. Email delivery, updates, hosting, support and provider technical operations may involve processing elsewhere. A project's region does not mean every provider operation is confined to that region. Each provider's own privacy terms also apply to its services."]
+    },
+    {
+      "title": "8. Security",
+      "paragraphs": [
+        "JANITRA uses authenticated backend requests, server-side role/scope checks and database row-level security; protected account operations require additional confirmation. Personal offline work is encrypted as described above. Important account and work actions generate audit/security records.",
+        "These controls reduce risk but do not guarantee absolute security or prove regulatory certification. Users must protect devices, sessions, exported files, passwords, PINs and authenticator access. Report suspected unauthorized access using the privacy contact shown above."
+      ]
+    },
+    {
+      "title": "9. Retention and account deletion",
+      "paragraphs": [
+        "Workforce information is used while needed for authorized operations, security, dispute handling and applicable recordkeeping obligations. The current application does not implement a timed automatic expiry for server work records or audit history. Removing an account is not the same as deleting all related records.",
+        "An authorized permanent account deletion removes the Supabase Auth account, revokes sessions, removes Personnel identity/setup and PIN credentials, disables role and Personnel assignments, and replaces the profile name with 'Deleted account'. Admins can delete eligible Supervisors and Personnel; Supervisors can delete eligible Personnel within their authorized scope. Admin accounts are protected from this ordinary deletion action.",
+        "Task records, approvals, assignments, audit history and security history remain. Historical snapshots or audit details may still contain names or other identifying information: the name replacement does not fully anonymize all historical records. Exported/shared reports are not recalled when an account is deleted.",
+        "Requests for access, correction, erasure or restriction, including questions about retained records and backup copies, should be sent to the privacy contact above. Such requests require identity verification and review of the applicable purpose and legal obligations. The app does not promise immediate erasure of all history or backup copies. Provider backup/log retention and any organization-specific retention periods must also be considered when responding to a request."
+      ]
+    },
+    {
+      "title": "10. Your privacy rights and requests",
+      "paragraphs": [
+        "Subject to applicable Philippine law and its limitations, you may exercise rights to be informed, access information, correct inaccuracies, object to processing, request erasure or blocking, and request data portability where applicable. You may file a complaint with the National Privacy Commission and seek remedies, including damages where available under law.",
+        "For a privacy or account-deletion request, use the email shown above. Identify JANITRA, your account identifier and the request. Do not send your password, PIN, one-time setup code or authenticator secret. We may need to verify your identity and coordinate with the organization responsible for the workforce records.",
+        "The current app does not have a self-service account-erasure request workflow. Contacting the privacy address initiates a request; it does not immediately remove records. If retention is legally justified, the response should explain what remains and why."
+      ]
+    },
+    {
+      "title": "11. Changes and contact",
+      "paragraphs": [
+        "Policy changes will show a new last-updated date. The in-app policy is bundled with the installed app and can be read without signing in or an internet connection. The public HTML version can reflect a newer published policy, so check its dates when comparing versions.",
+        "For privacy questions, corrections, access or account-deletion requests, contact the developer/operator using the privacy email above. For information about Philippine privacy rights and complaints, visit the National Privacy Commission at privacy.gov.ph."
+      ]
+    }
+  ]
+}

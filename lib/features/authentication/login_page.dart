@@ -4,6 +4,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../core/auth_callback.dart';
 import '../../core/app_theme.dart';
 import 'account_setup_page.dart';
+import '../privacy/privacy_policy_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key, required this.client});
@@ -293,6 +294,15 @@ class _LoginPageState extends State<LoginPage> {
                                   ],
                                 ),
                               ),
+                            ),
+                            TextButton.icon(
+                              onPressed: () => Navigator.of(context).push<void>(
+                                MaterialPageRoute(
+                                  builder: (_) => const PrivacyPolicyPage(),
+                                ),
+                              ),
+                              icon: const Icon(Icons.privacy_tip_outlined),
+                              label: const Text('Privacy Policy'),
                             ),
                           ],
                         ),

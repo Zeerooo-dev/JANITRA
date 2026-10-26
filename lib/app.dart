@@ -20,6 +20,7 @@ import 'core/account_label.dart';
 import 'core/appearance_settings.dart';
 import 'core/startup_reveal.dart';
 import 'features/updates/update_prompt.dart';
+import 'features/privacy/privacy_policy_page.dart';
 
 class JanitraApp extends StatefulWidget {
   const JanitraApp({super.key, this.client, this.appearance});
@@ -102,14 +103,30 @@ class _JanitraAppState extends State<JanitraApp> {
         },
         home: StartupReveal(
           child: widget.client == null
-              ? const Scaffold(
+              ? Scaffold(
                   body: SafeArea(
                     child: Center(
                       child: Padding(
                         padding: EdgeInsets.all(24),
-                        child: Text(
-                          'JANITRA could not connect. Please restart the app or contact your supervisor.',
-                          textAlign: TextAlign.center,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Text(
+                              'JANITRA could not connect. Please restart the app or contact your supervisor.',
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 16),
+                            TextButton.icon(
+                              onPressed: () =>
+                                  _navigatorKey.currentState?.push<void>(
+                                    MaterialPageRoute(
+                                      builder: (_) => const PrivacyPolicyPage(),
+                                    ),
+                                  ),
+                              icon: const Icon(Icons.privacy_tip_outlined),
+                              label: const Text('Privacy Policy'),
+                            ),
+                          ],
                         ),
                       ),
                     ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../core/app_theme.dart';
 import '../updates/apk_updater.dart';
+import '../updates/update_prompt.dart';
 
 class AboutPage extends StatefulWidget {
   const AboutPage({super.key});
@@ -12,6 +13,19 @@ class AboutPage extends StatefulWidget {
 
 class _AboutPageState extends State<AboutPage> {
   late final _app = AndroidUpdatePlatform().installedApp();
+  bool _checking = false;
+
+  Future<void> _checkUpdates() async {
+    if (_checking) return;
+    setState(() => _checking = true);
+    final message = await UpdatePromptHost.checkForUpdates(context);
+    if (!mounted) return;
+    setState(() => _checking = false);
+    if (message != null) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(message)));
+    }
+  }
 
   @override
   Widget build(BuildContext context) => Scaffold(
@@ -47,6 +61,14 @@ class _AboutPageState extends State<AboutPage> {
           },
         ),
         const SizedBox(height: 24),
+        OutlinedButton.icon(
+          onPressed: _checking ? null : _checkUpdates,
+          icon: const Icon(Icons.system_update_outlined),
+          label: Text(
+            _checking ? 'Checking for updates…' : 'Check for Updates',
+          ),
+        ),
+        const SizedBox(height: 16),
         Card(
           child: ListTile(
             leading: const Icon(Icons.description_outlined),

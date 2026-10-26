@@ -26,6 +26,7 @@ import '../authentication/mfa_page.dart';
 import 'workspace_access.dart';
 import '../../core/aurora_glass.dart';
 import 'home_setup_panel.dart';
+import '../privacy/privacy_policy_page.dart';
 
 class WorkspacePage extends StatefulWidget {
   const WorkspacePage({
@@ -598,6 +599,18 @@ class _WorkspacePageState extends State<WorkspacePage> {
       Card(
         child: Column(
           children: [
+            const ListTile(
+              title: Text(
+                'Settings',
+                style: TextStyle(fontWeight: FontWeight.w700),
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.privacy_tip_outlined),
+              title: const Text('Privacy Policy'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => _open(const PrivacyPolicyPage()),
+            ),
             ListTile(
               leading: const Icon(Icons.palette_outlined),
               title: const Text('Appearance'),
@@ -770,7 +783,7 @@ class _WorkspacePageState extends State<WorkspacePage> {
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       fontSize: 14,
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      color: Theme.of(context).appBarTheme.foregroundColor,
                     ),
                   ),
                 ],
