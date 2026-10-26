@@ -13,14 +13,17 @@ class PolicyTest(unittest.TestCase):
         page = render(self.policy)
         self.assertEqual(page, (ROOT / 'docs/privacy/index.html').read_text())
         self.assertIn('lang="en"', page)
-        self.assertIn('mailto:jeffirie12@gmail.com', page)
+        self.assertNotIn('mailto:', page)
+        self.assertNotIn('privacyEmail', self.policy)
+        self.assertNotIn('jeffirie12@gmail.com', page)
+        self.assertIn('does not currently publish a direct developer privacy contact', page)
         self.assertIn('prefers-color-scheme:dark', page)
         self.assertNotIn('<script', page)
         self.assertNotIn('<iframe', page)
         self.assertNotIn('[Date', page)
 
     def test_rejects_incomplete_publication_metadata(self):
-        for key in ('operator', 'privacyEmail', 'effectiveDate', 'updatedDate'):
+        for key in ('operator', 'effectiveDate', 'updatedDate'):
             for value in (None, '', '[Not decided]'):
                 changed = copy.deepcopy(self.policy)
                 changed[key] = value

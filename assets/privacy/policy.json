@@ -1,7 +1,6 @@
 {
   "application": "JANITRA",
   "operator": "Zeerooo-dev",
-  "privacyEmail": "jeffirie12@gmail.com",
   "effectiveDate": "2026-10-27",
   "updatedDate": "2026-10-27",
   "sections": [
@@ -9,7 +8,7 @@
       "title": "1. Introduction",
       "paragraphs": [
         "JANITRA helps manpower agencies, Admins, Supervisors and Personnel manage workplaces, cleaning schedules, assigned activities, work submissions and approvals. This policy explains the information processed by JANITRA, its uses and access controls, and how to raise a privacy request.",
-        "The developer/operator and privacy contact are identified above. Participating employers and agencies are responsible for the workforce information they enter and their authorized use of reports. Applicable processing must have a lawful basis under the Philippine Data Privacy Act of 2012 (Republic Act No. 10173), such as an applicable contract, legal obligation or legitimate interest. Using this app does not by itself constitute consent to every use of personal information."
+        "JANITRA is developed and operated independently under the name Zeerooo-dev. Participating employers and agencies are responsible for the workforce information they enter and their authorized use of reports. Applicable processing must have a lawful basis under the Philippine Data Privacy Act of 2012 (Republic Act No. 10173), such as an applicable contract, legal obligation or legitimate interest. Using this app does not by itself constitute consent to every use of personal information."
       ]
     },
     {
@@ -72,13 +71,16 @@
         "GitHub provides release metadata and APK downloads. Requests do not intentionally include JANITRA account credentials, PINs or workforce records. A public policy hosted through GitHub Pages is also served by GitHub.",
         "Android and installed sharing applications handle secure storage, the APK installer and files a user chooses to share. An authenticator application chosen by the user handles their authenticator enrollment and codes."
       ],
-      "paragraphs": ["Primary application data is hosted in Japan. Email delivery, updates, hosting, support and provider technical operations may involve processing elsewhere. A project's region does not mean every provider operation is confined to that region. Each provider's own privacy terms also apply to its services."]
+      "paragraphs": [
+        "Primary application data is hosted in Japan. Email delivery, updates, hosting, support and provider technical operations may involve processing elsewhere. A project's region does not mean every provider operation is confined to that region. Each provider's own privacy terms also apply to its services.",
+        "As verified on October 27, 2026, the Supabase project uses the Free plan with a one-day diagnostic-log retention entitlement, no enabled managed-backup retention entitlement, no listed backups, and point-in-time recovery disabled. No external Supabase log drains are configured. Diagnostic-log availability is separate from JANITRA task and audit records stored in the database. These settings do not establish when every provider-held copy is erased, and may change if the hosting configuration changes."
+      ]
     },
     {
       "title": "8. Security",
       "paragraphs": [
         "JANITRA uses authenticated backend requests, server-side role/scope checks and database row-level security; protected account operations require additional confirmation. Personal offline work is encrypted as described above. Important account and work actions generate audit/security records.",
-        "These controls reduce risk but do not guarantee absolute security or prove regulatory certification. Users must protect devices, sessions, exported files, passwords, PINs and authenticator access. Report suspected unauthorized access using the privacy contact shown above."
+        "These controls reduce risk but do not guarantee absolute security or prove regulatory certification. Users must protect devices, sessions, exported files, passwords, PINs and authenticator access. Report suspected unauthorized access to your workplace Supervisor or Admin through your existing workplace contact arrangements."
       ]
     },
     {
@@ -87,22 +89,22 @@
         "Workforce information is used while needed for authorized operations, security, dispute handling and applicable recordkeeping obligations. The current application does not implement a timed automatic expiry for server work records or audit history. Removing an account is not the same as deleting all related records.",
         "An authorized permanent account deletion removes the Supabase Auth account, revokes sessions, removes Personnel identity/setup and PIN credentials, disables role and Personnel assignments, and replaces the profile name with 'Deleted account'. Admins can delete eligible Supervisors and Personnel; Supervisors can delete eligible Personnel within their authorized scope. Admin accounts are protected from this ordinary deletion action.",
         "Task records, approvals, assignments, audit history and security history remain. Historical snapshots or audit details may still contain names or other identifying information: the name replacement does not fully anonymize all historical records. Exported/shared reports are not recalled when an account is deleted.",
-        "Requests for access, correction, erasure or restriction, including questions about retained records and backup copies, should be sent to the privacy contact above. Such requests require identity verification and review of the applicable purpose and legal obligations. The app does not promise immediate erasure of all history or backup copies. Provider backup/log retention and any organization-specific retention periods must also be considered when responding to a request."
+        "Requests for access, correction, erasure or restriction, including questions about retained records and backup copies, can be raised through the workplace contact arrangements described below. Such requests require identity verification and review of the applicable purpose and legal obligations. The app does not promise immediate erasure of all history or backup copies. Provider backup/log retention and any organization-specific retention periods must also be considered when responding to a request."
       ]
     },
     {
       "title": "10. Your privacy rights and requests",
       "paragraphs": [
         "Subject to applicable Philippine law and its limitations, you may exercise rights to be informed, access information, correct inaccuracies, object to processing, request erasure or blocking, and request data portability where applicable. You may file a complaint with the National Privacy Commission and seek remedies, including damages where available under law.",
-        "For a privacy or account-deletion request, use the email shown above. Identify JANITRA, your account identifier and the request. Do not send your password, PIN, one-time setup code or authenticator secret. We may need to verify your identity and coordinate with the organization responsible for the workforce records.",
-        "The current app does not have a self-service account-erasure request workflow. Contacting the privacy address initiates a request; it does not immediately remove records. If retention is legally justified, the response should explain what remains and why."
+        "For a workplace privacy or account-deletion request, contact your Supervisor or Admin through your existing workplace contact arrangements and ask them to raise it with the independent operator when necessary. Identify JANITRA, your account identifier and the request. Do not send your password, PIN, one-time setup code or authenticator secret. Identity verification and coordination with the organization responsible for the workforce records may be needed.",
+        "JANITRA does not currently publish a direct developer privacy contact or provide an in-app privacy-request form or self-service account-erasure workflow. The workplace contact arrangement depends on the contacts already provided to you by your workplace. Raising a request does not immediately remove records. If retention is legally justified, the response should explain what remains and why."
       ]
     },
     {
       "title": "11. Changes and contact",
       "paragraphs": [
         "Policy changes will show a new last-updated date. The in-app policy is bundled with the installed app and can be read without signing in or an internet connection. The public HTML version can reflect a newer published policy, so check its dates when comparing versions.",
-        "For privacy questions, corrections, access or account-deletion requests, contact the developer/operator using the privacy email above. For information about Philippine privacy rights and complaints, visit the National Privacy Commission at privacy.gov.ph."
+        "For workplace privacy questions, corrections, access or account-deletion requests, use the workplace contact arrangements described in section 10. For information about Philippine privacy rights and complaints, visit the National Privacy Commission at privacy.gov.ph."
       ]
     }
   ]

@@ -17,7 +17,6 @@ class _PrivacyPolicyPageState extends State<PrivacyPolicyPage> {
       for (final key in [
         'application',
         'operator',
-        'privacyEmail',
         'effectiveDate',
         'updatedDate',
       ]) {
@@ -71,7 +70,7 @@ class _PrivacyPolicyPageState extends State<PrivacyPolicyPage> {
                       ),
                       const SizedBox(height: 12),
                       Text(
-                        'Developer / operator: ${data['operator']}\nPrivacy and account-deletion contact: ${data['privacyEmail']}',
+                        'Developer / operator: ${data['operator']}',
                       ),
                       for (final section
                           in (data['sections'] as List)

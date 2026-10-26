@@ -4,18 +4,15 @@ import datetime
 import html
 import json
 from pathlib import Path
-import re
 
 ROOT = Path(__file__).resolve().parents[1]
 
 
 def render(data):
-    for key in ('application', 'operator', 'privacyEmail', 'effectiveDate', 'updatedDate'):
+    for key in ('application', 'operator', 'effectiveDate', 'updatedDate'):
         value = data.get(key)
         if not isinstance(value, str) or not value.strip() or '[' in value or ']' in value:
             raise ValueError(f'Complete policy publication field: {key}')
-    if not re.fullmatch(r'[^\s@]+@[^\s@]+\.[^\s@]+', data['privacyEmail']):
-        raise ValueError('A public privacy contact email is required')
     for field in ('effectiveDate', 'updatedDate'):
         datetime.date.fromisoformat(data[field])
     if not data.get('sections'):
@@ -49,8 +46,7 @@ a:focus-visible{{outline:3px solid var(--accent);outline-offset:4px}}nav{{margin
 <h1>JANITRA Privacy Policy</h1>
 <p>Effective date: <time datetime="{esc(data['effectiveDate'])}">{esc(data['effectiveDate'])}</time><br>
 Last updated: <time datetime="{esc(data['updatedDate'])}">{esc(data['updatedDate'])}</time></p>
-<p>Developer / operator: {esc(data['operator'])}<br>
-Privacy and account-deletion contact: <a href="mailto:{esc(data['privacyEmail'])}">{esc(data['privacyEmail'])}</a></p>
+<p>Developer / operator: {esc(data['operator'])}</p>
 </header>{''.join(parts)}
 <footer><p>Provider information: <a href="https://supabase.com/privacy">Supabase</a>,
 <a href="https://policies.google.com/privacy">Google</a>,
@@ -70,7 +66,7 @@ if __name__ == '__main__':
     if args.check:
         if not output.is_file() or output.read_text() != content:
             raise SystemExit('Public policy differs from bundled policy; run tool/build_privacy_policy.py')
-        print('Policy metadata is complete and public HTML matches the bundled app policy.')
+        print('Policy dates/operator are valid and public HTML matches the bundled app policy. Contact/retention readiness is tracked in the verification report.')
     else:
         output.parent.mkdir(parents=True, exist_ok=True)
         output.write_text(content)

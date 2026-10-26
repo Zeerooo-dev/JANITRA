@@ -38,11 +38,12 @@ void main() {
     )..addFont(rootBundle.load('fonts/MaterialIcons-Regular.otf'))).load();
   });
 
-  test('Bundled policy has complete dates, public contact and verified feature disclosures', () async {
+  test('Bundled policy has valid dates, no personal contact and verified feature disclosures', () async {
     final raw = await rootBundle.loadString('assets/privacy/policy.json');
     final data = jsonDecode(raw) as Map<String, dynamic>;
     expect(data['operator'], 'Zeerooo-dev');
-    expect(data['privacyEmail'], 'jeffirie12@gmail.com');
+    expect(data.containsKey('privacyEmail'), isFalse);
+    expect(raw, isNot(contains('jeffirie12@gmail.com')));
     expect(DateTime.tryParse(data['effectiveDate']), isNotNull);
     expect(DateTime.tryParse(data['updatedDate']), isNotNull);
     expect(raw, isNot(contains('[Date')));
@@ -56,6 +57,9 @@ void main() {
       'not fully anonymize',
       'not automatically removed',
       'self-service',
+      'one-day diagnostic-log retention',
+      'point-in-time recovery disabled',
+      'does not currently publish a direct developer privacy contact',
     ]) {
       expect(raw, contains(term));
     }
@@ -83,7 +87,9 @@ void main() {
           find.textContaining('Effective date: 2026-10-27'),
           findsOneWidget,
         );
-        expect(find.textContaining('jeffirie12@gmail.com'), findsOneWidget);
+        expect(find.text('Developer / operator: Zeerooo-dev'), findsOneWidget);
+        expect(find.textContaining('Privacy and account-deletion contact:'), findsNothing);
+        expect(find.textContaining('jeffirie12@gmail.com'), findsNothing);
         await expectLater(
           find.byType(Scaffold),
           matchesGoldenFile(
