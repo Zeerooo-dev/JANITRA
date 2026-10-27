@@ -218,6 +218,8 @@ void main() {
               ? 'employee-tasks-large-text'
               : 'supervisor-tasks-large-text',
         );
+        await tester.ensureVisible(find.text('Test cleaning'));
+        await tester.pumpAndSettle();
         await tester.tap(find.text('Test cleaning'));
         await tester.pumpAndSettle();
         await tester.ensureVisible(

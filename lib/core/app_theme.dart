@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'appearance_settings.dart';
 
@@ -56,15 +57,12 @@ ThemeData janitraTheme({
     return color;
   }
 
-  final barSurface = navigationSurface(
-    Color.alphaBlend(accent.withValues(alpha: dark ? .55 : .12), surface),
-  );
+  final barSurface = navigationSurface(scaffold);
   final minimum = highContrast ? 7.0 : 4.5;
   final barInk = readableColor(ink, barSurface, minimum);
   final barMuted = readableColor(muted, barSurface, minimum);
-  final barPrimary = readableColor(primary, barSurface, minimum);
   final indicator = navigationSurface(
-    Color.alphaBlend(primary.withValues(alpha: .18), barSurface),
+    Color.alphaBlend(barInk.withValues(alpha: .10), barSurface),
   );
   return ThemeData(
     brightness: brightness,
@@ -126,6 +124,14 @@ ThemeData janitraTheme({
     appBarTheme: AppBarTheme(
       backgroundColor: barSurface,
       foregroundColor: barInk,
+      systemOverlayStyle: SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness:
+            ThemeData.estimateBrightnessForColor(barSurface) == Brightness.dark
+            ? Brightness.light
+            : Brightness.dark,
+        statusBarBrightness: ThemeData.estimateBrightnessForColor(barSurface),
+      ),
       surfaceTintColor: Colors.transparent,
       elevation: 0,
       scrolledUnderElevation: 0,
@@ -215,11 +221,12 @@ ThemeData janitraTheme({
       iconTheme: WidgetStateProperty.resolveWith(
         (states) => IconThemeData(
           color: states.contains(WidgetState.selected)
-              ? readableColor(primary, indicator, minimum)
+              ? readableColor(barInk, indicator, minimum)
               : barMuted,
         ),
       ),
       height: 70,
+      elevation: 0,
       backgroundColor: barSurface,
       surfaceTintColor: Colors.transparent,
       indicatorColor: indicator,
@@ -230,7 +237,7 @@ ThemeData janitraTheme({
           fontWeight: s.contains(WidgetState.selected)
               ? FontWeight.w700
               : FontWeight.w500,
-          color: s.contains(WidgetState.selected) ? barPrimary : barMuted,
+          color: s.contains(WidgetState.selected) ? barInk : barMuted,
         ),
       ),
     ),

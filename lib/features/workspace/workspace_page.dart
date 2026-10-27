@@ -751,103 +751,118 @@ class _WorkspacePageState extends State<WorkspacePage> {
     final supervisor = widget.access.isSupervisor;
     final tabs = supervisor ? [0, 3, 4, 5] : [0, 3, 2];
     final selected = tabs.indexOf(_tab);
-    return Scaffold(
-      appBar: AppBar(
-        toolbarHeight:
-            (_tab == 0 ? 88 : 72) *
-            (MediaQuery.textScalerOf(context).scale(16) / 32).clamp(
-              1,
-              double.infinity,
-            ),
-        title: _tab == 0
-            ? Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Hello, $_fullName',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.w700,
+    return JanitraAuroraBackground(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          flexibleSpace: const JanitraNavigationSurface(
+            key: ValueKey('workspace-top-bar-surface'),
+            child: SizedBox.expand(),
+          ),
+          toolbarHeight:
+              (_tab == 0 ? 88 : 72) *
+              (MediaQuery.textScalerOf(context).scale(16) / 32).clamp(
+                1,
+                double.infinity,
+              ),
+          title: _tab == 0
+              ? Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Hello, $_fullName',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 5),
-                  Text(
-                    _sites.isEmpty
-                        ? (supervisor
-                              ? 'Supervisor workspace'
-                              : 'Personnel workspace')
-                        : _sites.map((s) => s['name']).join(' · '),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Theme.of(context).appBarTheme.foregroundColor,
+                    const SizedBox(height: 5),
+                    Text(
+                      _sites.isEmpty
+                          ? (supervisor
+                                ? 'Supervisor workspace'
+                                : 'Personnel workspace')
+                          : _sites.map((s) => s['name']).join(' · '),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Theme.of(context).appBarTheme.foregroundColor,
+                      ),
                     ),
-                  ),
-                ],
-              )
-            : Text(switch (_tab) {
-                1 => 'Workplaces',
-                2 => 'Profile',
-                3 => supervisor ? 'Tasks' : 'My Tasks',
-                4 => 'Team',
-                _ => 'Reports',
-              }),
-        actions: [
-          if (supervisor)
+                  ],
+                )
+              : Text(switch (_tab) {
+                  1 => 'Workplaces',
+                  2 => 'Profile',
+                  3 => supervisor ? 'Tasks' : 'My Tasks',
+                  4 => 'Team',
+                  _ => 'Reports',
+                }),
+          actions: [
+            if (supervisor)
+              IconButton(
+                tooltip: 'Workplaces',
+                onPressed: () => _select(1),
+                icon: const Icon(Icons.business_outlined),
+              ),
             IconButton(
-              tooltip: 'Workplaces',
-              onPressed: () => _select(1),
-              icon: const Icon(Icons.business_outlined),
+              tooltip: 'Profile',
+              onPressed: () => _select(2),
+              icon: InitialsAvatar(_fullName),
             ),
-          IconButton(
-            tooltip: 'Profile',
-            onPressed: () => _select(2),
-            icon: InitialsAvatar(_fullName),
+            const SizedBox(width: 8),
+          ],
+        ),
+        bottomNavigationBar: SafeArea(
+          top: false,
+          minimum: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+          child: JanitraNavigationSurface(
+            key: const ValueKey('workspace-bottom-bar-surface'),
+            radius: 26,
+            child: NavigationBar(
+              backgroundColor: Colors.transparent,
+              animationDuration:
+                  MediaQuery.disableAnimationsOf(context) ||
+                      FocusManager.instance.highlightMode ==
+                          FocusHighlightMode.traditional
+                  ? Duration.zero
+                  : const Duration(milliseconds: 180),
+              selectedIndex: selected < 0 ? 0 : selected,
+              onDestinationSelected: (index) => _select(tabs[index]),
+              destinations: [
+                const NavigationDestination(
+                  icon: Icon(Icons.home_outlined),
+                  selectedIcon: Icon(Icons.home),
+                  label: 'Home',
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.checklist),
+                  label: supervisor ? 'Tasks' : 'My Tasks',
+                ),
+                if (supervisor) ...[
+                  const NavigationDestination(
+                    icon: Icon(Icons.people_outline),
+                    label: 'Team',
+                  ),
+                  const NavigationDestination(
+                    icon: Icon(Icons.assessment_outlined),
+                    label: 'Reports',
+                  ),
+                ] else
+                  const NavigationDestination(
+                    icon: Icon(Icons.person_outline),
+                    selectedIcon: Icon(Icons.person),
+                    label: 'Profile',
+                  ),
+              ],
+            ),
           ),
-          const SizedBox(width: 8),
-        ],
-      ),
-      bottomNavigationBar: NavigationBar(
-        animationDuration:
-            MediaQuery.disableAnimationsOf(context) ||
-                FocusManager.instance.highlightMode ==
-                    FocusHighlightMode.traditional
-            ? Duration.zero
-            : const Duration(milliseconds: 180),
-        selectedIndex: selected < 0 ? 0 : selected,
-        onDestinationSelected: (index) => _select(tabs[index]),
-        destinations: [
-          const NavigationDestination(
-            icon: Icon(Icons.home_outlined),
-            selectedIcon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.checklist),
-            label: supervisor ? 'Tasks' : 'My Tasks',
-          ),
-          if (supervisor) ...[
-            const NavigationDestination(
-              icon: Icon(Icons.people_outline),
-              label: 'Team',
-            ),
-            const NavigationDestination(
-              icon: Icon(Icons.assessment_outlined),
-              label: 'Reports',
-            ),
-          ] else
-            const NavigationDestination(
-              icon: Icon(Icons.person_outline),
-              selectedIcon: Icon(Icons.person),
-              label: 'Profile',
-            ),
-        ],
-      ),
-      body: JanitraAuroraBackground(
-        child: SafeArea(
+        ),
+        body: SafeArea(
           child: _loading
               ? const Center(
                   child: CircularProgressIndicator(

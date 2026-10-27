@@ -275,6 +275,67 @@ class JanitraGlassPanel extends StatelessWidget {
   }
 }
 
+class JanitraNavigationSurface extends StatelessWidget {
+  const JanitraNavigationSurface({
+    super.key,
+    required this.child,
+    this.radius = 0,
+  });
+
+  final Widget child;
+  final double radius;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final highContrast =
+        context
+            .dependOnInheritedWidgetOfExactType<AppearanceScope>()
+            ?.notifier
+            ?.highContrast ??
+        false;
+    final base = theme.appBarTheme.backgroundColor!;
+    final tint = base.withValues(
+      alpha: theme.brightness == Brightness.dark ? .82 : .90,
+    );
+    final inks = [
+      theme.appBarTheme.foregroundColor!,
+      theme.navigationBarTheme.labelTextStyle!.resolve({})!.color!,
+    ];
+    // Test both backdrop extremes so custom colors cannot hide bar controls.
+    final frosted =
+        !highContrast &&
+        [Colors.black, Colors.white].every(
+          (backdrop) => inks.every(
+            (ink) =>
+                colorContrast(ink, Color.alphaBlend(tint, backdrop)) >= 4.5,
+          ),
+        );
+    final surface = DecoratedBox(
+      decoration: BoxDecoration(
+        color: frosted ? tint : base,
+        borderRadius: BorderRadius.circular(radius),
+        border: Border.all(
+          color: theme.colorScheme.outlineVariant.withValues(
+            alpha: highContrast ? 1 : .45,
+          ),
+          width: .5,
+        ),
+      ),
+      child: child,
+    );
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(radius),
+      child: frosted
+          ? BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+              child: surface,
+            )
+          : surface,
+    );
+  }
+}
+
 /// A glass version of Card for the visible workspace cards only. Preserves
 /// Card's familiar margin and Material behavior, without changing data logic.
 class JanitraGlassCard extends StatelessWidget {

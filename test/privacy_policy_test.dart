@@ -88,7 +88,10 @@ void main() {
           findsOneWidget,
         );
         expect(find.text('Developer / operator: Zeerooo-dev'), findsOneWidget);
-        expect(find.textContaining('Privacy and account-deletion contact:'), findsNothing);
+        expect(
+          find.textContaining('Privacy and account-deletion contact:'),
+          findsNothing,
+        );
         expect(find.textContaining('jeffirie12@gmail.com'), findsNothing);
         await expectLater(
           find.byType(Scaffold),
@@ -166,7 +169,7 @@ void main() {
     );
   }
 
-  test('Colored bars keep readable text and selected icons in every appearance mode', () {
+  test('Background-based bars keep readable text and selected icons in every appearance mode', () {
     for (final brightness in Brightness.values) {
       for (final contrast in [false, true]) {
         for (final accent in [janitraNavy, Colors.yellow, Colors.red]) {
@@ -177,7 +180,7 @@ void main() {
           );
           final minimum = contrast ? 7.0 : 4.5;
           final bar = theme.appBarTheme.backgroundColor!;
-          expect(bar, isNot(theme.scaffoldBackgroundColor));
+          expect(bar, theme.scaffoldBackgroundColor);
           expect(
             colorContrast(theme.appBarTheme.foregroundColor!, bar),
             greaterThanOrEqualTo(minimum),
@@ -204,6 +207,47 @@ void main() {
       }
     }
   });
+
+  test(
+    'Navigation surfaces follow custom backgrounds independently of accent',
+    () {
+      for (final brightness in Brightness.values) {
+        for (final contrast in [false, true]) {
+          for (final background in [
+            Colors.black,
+            Colors.white,
+            const Color(0xFF777777),
+            const Color(0xFF193B30),
+          ]) {
+            final surfaces = <Color>{};
+            for (final accent in [janitraNavy, Colors.red, Colors.yellow]) {
+              final theme = janitraTheme(
+                brightness: brightness,
+                accent: accent,
+                background: background,
+                highContrast: contrast,
+              );
+              final bar = theme.appBarTheme.backgroundColor!;
+              surfaces.add(bar);
+              expect(theme.navigationBarTheme.backgroundColor, bar);
+              expect(
+                theme.appBarTheme.systemOverlayStyle!.statusBarIconBrightness,
+                ThemeData.estimateBrightnessForColor(bar) == Brightness.dark
+                    ? Brightness.light
+                    : Brightness.dark,
+              );
+              if (!contrast) expect(bar, background);
+              expect(
+                colorContrast(theme.appBarTheme.foregroundColor!, bar),
+                greaterThanOrEqualTo(contrast ? 7 : 4.5),
+              );
+            }
+            expect(surfaces, hasLength(1));
+          }
+        }
+      }
+    },
+  );
 
   for (final role in ['signed out', 'admin', 'supervisor', 'personnel']) {
     testWidgets(
