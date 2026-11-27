@@ -506,7 +506,33 @@ void main() {
       await tester.pumpAndSettle();
       expect(calls, 0);
       expect(find.text('Passwords must match.'), findsOneWidget);
+      await tester.tap(find.byTooltip('Show password').first);
       tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
+      await tester.pump();
+      expect(
+        tester.widget<TextFormField>(fields.at(1)).controller!.text,
+        'a' * 43,
+      );
+      expect(
+        tester.widget<TextFormField>(fields.at(2)).controller!.text,
+        'Chosen-password-123',
+      );
+      expect(
+        tester.widget<TextFormField>(fields.at(3)).controller!.text,
+        'different',
+      );
+      expect(
+        tester
+            .widget<TextField>(
+              find.descendant(
+                of: fields.at(2),
+                matching: find.byType(TextField),
+              ),
+            )
+            .obscureText,
+        isTrue,
+      );
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.hidden);
       await tester.pump();
       for (var i = 1; i < 4; i++) {
         expect(
@@ -514,6 +540,7 @@ void main() {
           isEmpty,
         );
       }
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
       tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
       await tester.enterText(fields.at(1), 'a' * 43);
       await tester.enterText(fields.at(2), 'Chosen-password-123');

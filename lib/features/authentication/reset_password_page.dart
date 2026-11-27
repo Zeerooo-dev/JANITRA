@@ -18,7 +18,8 @@ class ResetPasswordPage extends StatefulWidget {
   State<ResetPasswordPage> createState() => _ResetPasswordPageState();
 }
 
-class _ResetPasswordPageState extends State<ResetPasswordPage> {
+class _ResetPasswordPageState extends State<ResetPasswordPage>
+    with WidgetsBindingObserver {
   final _form = GlobalKey<FormState>();
   final _password = TextEditingController();
   final _confirmation = TextEditingController();
@@ -26,7 +27,30 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
   String? _message;
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  void _clearSecrets() {
+    _password.clear();
+    _confirmation.clear();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // Inactive also covers brief keyboard and system-overlay focus changes.
+    if (state == AppLifecycleState.hidden ||
+        state == AppLifecycleState.paused ||
+        state == AppLifecycleState.detached) {
+      _clearSecrets();
+    }
+  }
+
+  @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _clearSecrets();
     _password.dispose();
     _confirmation.dispose();
     super.dispose();
@@ -55,8 +79,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
       }
     } finally {
       if (mounted) {
-        _password.clear();
-        _confirmation.clear();
+        _clearSecrets();
         setState(() => _busy = false);
       }
     }

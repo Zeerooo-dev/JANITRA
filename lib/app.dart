@@ -688,7 +688,7 @@ class _AccountPendingPageState extends State<_AccountPendingPage>
         onRefreshAccess: _checkSetup,
       );
     }
-    if (!_checking && _error == null && _needsPassword) {
+    if (_error == null && _needsPassword) {
       return ResetPasswordPage(
         client: widget.client,
         initialSetup: !widget.recovering,

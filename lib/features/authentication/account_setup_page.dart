@@ -35,7 +35,11 @@ class _AccountSetupPageState extends State<AccountSetupPage>
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state != AppLifecycleState.resumed) _clearSecrets();
+    if (state == AppLifecycleState.hidden ||
+        state == AppLifecycleState.paused ||
+        state == AppLifecycleState.detached) {
+      _clearSecrets();
+    }
   }
 
   @override
