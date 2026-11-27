@@ -1,6 +1,6 @@
 # Password recovery focus/resume fix
 
-November 27, 2026. Local Android test build; not published or deployed. Version remains **1.0.2+29**. No database, RLS, Auth configuration, dependency or backend function was changed.
+November 27, 2026. Initially verified as a local **1.0.2+29** Android test build. The owner subsequently approved a GitHub Actions build and public release as **1.0.3+30**, so the installed app's updater can detect a newer version. No database, RLS, Auth configuration, dependency or backend function was changed.
 
 ## Reproduced cause
 
@@ -35,4 +35,4 @@ The expiry regression renews an already-open recovery session with a short-lived
 
 The APK and attached source are packaged with SHA-256 checksums, exact source-commit verification, package/version checks and a signing-certificate comparison with JANITRA's established production signer. No private configuration, keystore, local database or cached credential files are included in the source archive.
 
-The affected physical phone has not been retested and its actual IME/lifecycle event trace has not been captured. Tests reproduce the reported form-reset path using keyboard-inset and focus/resume events. No current user passwords, recovery codes or production account records were used. Production data/settings and the public GitHub release remain unchanged.
+The affected physical phone has not been retested and its actual IME/lifecycle event trace has not been captured. Tests reproduce the reported form-reset path using keyboard-inset and focus/resume events. No current user passwords, recovery codes or production account records were used. Production data/settings remain unchanged. The approved GitHub release distributes the client fix only; signing, package/version, source and public checksum verification are required before publication.

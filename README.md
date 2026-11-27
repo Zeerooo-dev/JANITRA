@@ -2,6 +2,8 @@
 
 Android janitorial workforce management with Flutter, Material 3, and Supabase.
 
+Version **1.0.3, Build 30** fixes disappearing password-recovery input during access revalidation and brief keyboard/focus changes. Personnel setup/recovery receives the same transient-focus protection; actual backgrounding still clears secrets. Authorization, MFA and session-expiry checks remain active. See the [release notes](docs/releases/v1.0.3.md) and [fix verification](docs/PASSWORD-RECOVERY-FIX-2026-11-27.md). The higher version/build lets the existing GitHub updater offer this fix to 1.0.2 users.
+
 Version **1.0.2, Build 29** adds the [Privacy Policy](docs/privacy/index.html), fixes high-contrast setup text and colors the navigation bars, and adds About → Check for Updates. The owner confirmed physical-phone testing and approved GitHub publication on October 27, 2026. Download APKs and source from [GitHub Releases](https://github.com/Zeerooo-dev/JANITRA/releases). Read the [changes](docs/PRIVACY-UI-CHANGES-2026-10-27.md), [content verification and open decisions](docs/PRIVACY-VERIFICATION-2026-10-27.md), and [optional Pages hosting preparation](docs/privacy/HOSTING.md). Distribution is through GitHub; no Google Play publication is planned.
 
 The approved [navigation refresh](docs/GLASS-NAVIGATION-REFRESH-2026-10-27.md) replaces the v1.0.2 APK while keeping **1.0.2+29**: bars follow the background, and the workspace bottom bar floats in a rounded glass surface. Existing 1.0.2 users download it manually. Use the attached source ZIP and `release-info.json` for the refreshed APK; the original v1.0.2 tag and its automatic source archives remain unchanged.
